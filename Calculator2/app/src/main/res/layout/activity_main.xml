@@ -7,13 +7,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.example.android.calculator.MainActivity">
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:text="Calculate this up"
         android:textSize="24sp"
+        android:id="@+id/show_calculations"
         android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -27,23 +26,23 @@
 
         <Button
             style="@style/CalculatorButton"
-            android:text="-/+"
-            />
-        <Button
-            style="@style/CalculatorButton"
             android:text="C"
+            android:onClick="ButtonClear"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="^"
+            android:onClick="ButtonExpo"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="("
+            android:onClick="ButtonBracketOpen"
             />
         <Button
             style="@style/CalculatorButton"
             android:text=")"
+            android:onClick="ButtonBracketClose"
             />
 
 
@@ -56,22 +55,26 @@
         <Button
             style="@style/CalculatorButton"
             android:text="7"
+            android:onClick="ButtonSeven"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="8"
+            android:onClick="ButtonEight"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="9"
+            android:onClick="ButtonNine"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="+"
-            />
+            android:onClick="ButtonPlus"/>
         <Button
             style="@style/CalculatorButton"
             android:text="-"
+            android:onClick="ButtonMinus"
             />
 
     </LinearLayout>
@@ -84,22 +87,27 @@
         <Button
             style="@style/CalculatorButton"
             android:text="4"
+            android:onClick="ButtonFour"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="5"
+            android:onClick="ButtonFive"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="6"
+            android:onClick="ButtonSix"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="/"
+            android:onClick="ButtonDivision"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="*"
+            android:onClick="ButtonMultiply"
             />
 
     </LinearLayout>
@@ -112,19 +120,23 @@
         <Button
             style="@style/CalculatorButton"
             android:text="1"
+            android:onClick="ButtonOne"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="2"
+            android:onClick="ButtonTwo"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="3"
+            android:onClick="ButtonThree"
             />
         <Button
             style="@style/CalculatorButton"
             android:layout_weight="2"
             android:text="Delete"
+            android:onClick="ButtonDelete"
             />
 
 
@@ -139,15 +151,17 @@
         <Button
             style="@style/CalculatorButton"
             android:layout_weight="2"
-            android:text="0" />
+            android:text="0" android:onClick="ButtonZero" />
 
         <Button
             style="@style/CalculatorButton"
-            android:text="." />
+            android:text="."
+            android:onClick="ButtonDot"/>
 
         <Button
             style="@style/CalculatorButton"
             android:layout_weight="2"
+            android:onClick="ButtonSubmit"
             android:text="=" />
 
     </LinearLayout>
