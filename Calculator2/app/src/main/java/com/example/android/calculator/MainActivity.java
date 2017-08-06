@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void ButtonExpo(View v) {
         addOperations("^(");
+        numberOfBrackets+=1;
     }
 
     public void ButtonPlus(View v) {
@@ -172,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
             //Get the last character
             String lastOne = currentValue.substring(currentValue.length() - 1, currentValue.length());
             if (lastOne.equals(".")) previousOperation = "random";
+            else if(lastOne.equals(")")) numberOfBrackets+=1;
+            else if(lastOne.equals("("))numberOfBrackets-=1;
             //Get the string except for the last letter of the current text by using substrings
             String deletedOne = currentValue.substring(0, currentValue.length() - 1);
             //Set text to the new updated String
@@ -292,22 +295,46 @@ public class MainActivity extends AppCompatActivity {
                 if (biggest % 10 == 1) {
                     if (whichOperation == 0) {
                         first = first + second;
-                        ScreenOfNumber.setText(Double.toString(first));
+                        int checker = (int) first;
+                        if(checker == first)
+                        {
+                            ScreenOfNumber.setText(Integer.toString(checker));
+                        }
+                        else ScreenOfNumber.setText(Double.toString(first));
                     } else {
                         first = first - second;
-                        ScreenOfNumber.setText(Double.toString(first));
+                        int checker = (int) first;
+                        if(checker == first)
+                        {
+                            ScreenOfNumber.setText(Integer.toString(checker));
+                        }
+                        else ScreenOfNumber.setText(Double.toString(first));
                     }
                 } else if (biggest % 10 == 2) {
                     if (whichOperation == 0) {
                         first = first / second;
-                        ScreenOfNumber.setText(Double.toString(first));
+                        int checker = (int) first;
+                        if(checker == first)
+                        {
+                            ScreenOfNumber.setText(Integer.toString(checker));
+                        }
+                        else ScreenOfNumber.setText(Double.toString(first));
                     } else {
                         first = first * second;
-                        ScreenOfNumber.setText(Double.toString(first));
+                        int checker = (int) first;
+                        if(checker == first)
+                        {
+                            ScreenOfNumber.setText(Integer.toString(checker));
+                        }
+                        else ScreenOfNumber.setText(Double.toString(first));
                     }
                 } else {
                     second = Math.pow(first, second);
-                    ScreenOfNumber.setText(Double.toString(second));
+                    int checker = (int) second;
+                    if(second == checker){
+                        ScreenOfNumber.setText(Integer.toString(checker));
+                    }
+                   else ScreenOfNumber.setText(Double.toString(second));
                 }
             }
             //Counting loop will find the operation to start with
