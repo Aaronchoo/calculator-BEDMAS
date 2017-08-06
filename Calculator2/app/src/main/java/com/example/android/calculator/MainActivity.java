@@ -4,8 +4,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.BounceInterpolator;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
                 ScreenOfNumber.setText(currentValue + operation);
                 //Save the operation added to make sure that certain ones are not able to repeat
                 previousOperation = operation;
+                if (previousOperation.equals("^(")) numberOfBrackets += 1;
+                    //If not complete open and close then it loses it's priority
+                    //one less open bracket to match
+                else if (previousOperation.equals(")")) numberOfBrackets -= 1;
             }
             //If not it will not do anything.
         }
@@ -95,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void ButtonExpo(View v) {
         addOperations("^(");
-        numberOfBrackets+=1;
+
     }
 
     public void ButtonPlus(View v) {
@@ -137,24 +144,26 @@ public class MainActivity extends AppCompatActivity {
                 if (last.equals(")") || last.equals("(") || last.equals("0") || last.equals("1") || last.equals("3") || last.equals("2") || last.equals("4") || last.equals("5") || last.equals("6") || last.equals("7") || last.equals("8") || last.equals("9")) {
                     //set up the default operation
                     inputNumericalValue("(");
+                    previousOperation = "(";
+                    //Increase number of left brackets
+                    numberOfBrackets += 1;
                 }
-                previousOperation = "(";
+
             }
         } else {
             //This means the text is empty so it is able to add the open bracket
             inputNumericalValue("(");
             previousOperation = "(";
+            //Increase number of left brackets
+            numberOfBrackets += 1;
         }
-        //Increase number of left brackets
-        numberOfBrackets += 1;
+
     }
 
     public void ButtonBracketClose(View v) {
         addOperations(")");
         //Can be added anywhere expect before a dot
-        //If not complete open and close then it loses it's priority
-        //one less open bracket to match
-        numberOfBrackets -= 1;
+
 
     }
 
@@ -163,6 +172,8 @@ public class MainActivity extends AppCompatActivity {
         //Will set the text to being empty
         TextView ScreenOfNumber = (TextView) findViewById(R.id.show_calculations);
         ScreenOfNumber.setText("");
+        numberOfBrackets = 0;
+        previousOperation = "random";
     }
 
     public void ButtonDelete(View v) {
@@ -173,8 +184,8 @@ public class MainActivity extends AppCompatActivity {
             //Get the last character
             String lastOne = currentValue.substring(currentValue.length() - 1, currentValue.length());
             if (lastOne.equals(".")) previousOperation = "random";
-            else if(lastOne.equals(")")) numberOfBrackets+=1;
-            else if(lastOne.equals("("))numberOfBrackets-=1;
+            else if (lastOne.equals(")")) numberOfBrackets += 1;
+            else if (lastOne.equals("(")) numberOfBrackets -= 1;
             //Get the string except for the last letter of the current text by using substrings
             String deletedOne = currentValue.substring(0, currentValue.length() - 1);
             //Set text to the new updated String
@@ -190,7 +201,9 @@ public class MainActivity extends AppCompatActivity {
         //The last letter/character
         String lastOne = mathQuestion.substring(mathQuestion.length() - 1, mathQuestion.length());
         //Delete unnecessary info
-        if (lastOne.equals("*") || lastOne.equals("/") || lastOne.equals("-") || lastOne.equals("+") || lastOne.equals("^") || lastOne.equals("(")) {
+        if (lastOne.equals("")) {
+            Toast.makeText(this, "Nothing there!", Toast.LENGTH_SHORT).show();
+        } else if (lastOne.equals("*") || lastOne.equals("/") || lastOne.equals("-") || lastOne.equals("+") || lastOne.equals("^") || lastOne.equals("(")) {
             Toast.makeText(this, "Cannot end math question with that!", Toast.LENGTH_SHORT).show();
         }//Must check if there are equal amoutn of brackets as user may mess up and forget a few
         else if (numberOfBrackets != 0) {
@@ -208,38 +221,47 @@ public class MainActivity extends AppCompatActivity {
             int numberOfOperations = 0;
             //Holds number of brackets somethign is inside
             int bracketsInside = 0;
-            //Hold the priority of each plus which it is
-            int[][] priorityOfOperations = new int[mathQuestion.length()][2];
+            ///EXPLAIN
+            //Arary list will allow make it easier to erase the element easier
+            //One arraylist to hold the priority of the operations that need to be done
+            ///ANother arraylist to hold which operation it is
+            /// They are connected as the ones digit in the first array list will have at least 1 operation associated with it
+            /// The second arraylist confirms the specific one
+            ArrayList<Integer> priorityOfOperations = new ArrayList<Integer>();
+            ArrayList<Integer> whichIsIt = new ArrayList<Integer>();
+
             for (int i = 0; i < mathQuestion.length(); i++) {
                 //Now to check each indivudal character
                 if (mathQuestion.substring(i, i + 1).equals("+")) {
                     //The lower the number the less priority it will receive
-                    priorityOfOperations[numberOfOperations][0] = 1 + 10 * bracketsInside;
-                    ;
+                    priorityOfOperations.add(1 + 10 * bracketsInside);
+                    whichIsIt.add(0);
                     //Increase the ocunter
                     numberOfOperations += 1;
                 } else if (mathQuestion.substring(i, i + 1).equals("-")) {
                     //The lower the number the less priority it will receive
-                    priorityOfOperations[numberOfOperations][1] = 1 + 10 * bracketsInside;
-                    ;
+                    priorityOfOperations.add(1 + 10 * bracketsInside);
+                    whichIsIt.add(1);
                     //Increase the ocunter
                     numberOfOperations += 1;
                 } else if (mathQuestion.substring(i, i + 1).equals("/")) {
                     //The priority will be above addition/subtraction but not above the other two
-                    priorityOfOperations[numberOfOperations][0] = 2 + 10 * bracketsInside;
-                    ;
+                    priorityOfOperations.add(2 + 10 * bracketsInside);
+                    whichIsIt.add(0);
+
                     //increase the counter
                     numberOfOperations += 1;
                 } else if (mathQuestion.substring(i, i + 1).equals("*")) {
                     //The priority will be above addition/subtraction but not above the other two
-                    priorityOfOperations[numberOfOperations][1] = 2 + 10 * bracketsInside;
-                    ;
+                    priorityOfOperations.add(2 + 10 * bracketsInside);
+                    whichIsIt.add(1);
+
                     //increase the counter
                     numberOfOperations += 1;
                 } else if (mathQuestion.substring(i, i + 1).equals("^")) {
                     //Give a higher priority to the expoenent
-                    priorityOfOperations[numberOfOperations][0] = 3 + 10 * bracketsInside;
-                    ;
+                    priorityOfOperations.add(3 + 10 * bracketsInside);
+                    whichIsIt.add(0);
                     numberOfOperations += 1;
                 } else if (mathQuestion.substring(i, i + 1).equals("(")) {
                     //Check if it's before/after a number
@@ -250,8 +272,8 @@ public class MainActivity extends AppCompatActivity {
                         if (last.equals(")") || last.equals("0") || last.equals("1") || last.equals("3") || last.equals("2") || last.equals("4") || last.equals("5") || last.equals("6") || last.equals("7") || last.equals("8") || last.equals("9")) {
                             //Add a multiplication sign and add it to the priority list
                             mathQuestion = mathQuestion.substring(0, i) + "*" + mathQuestion.substring(i, mathQuestion.length());
-                            priorityOfOperations[numberOfOperations][1] = 2 + 10 * bracketsInside;
-                            ;
+                            priorityOfOperations.add(2 + 10 * bracketsInside);
+                            whichIsIt.add(1);
                             //increase the counter
                             numberOfOperations += 1;
                         }
@@ -280,15 +302,9 @@ public class MainActivity extends AppCompatActivity {
             mathQuestion = mathQuestion.trim();
             //If there is only one number
             if (numberOfOperations == 1) {
-                int biggest;
-                int whichOperation;
-                if (priorityOfOperations[0][0] > priorityOfOperations[0][1]) {
-                    biggest = priorityOfOperations[0][0];
-                    whichOperation = 0;
-                } else {
-                    biggest = priorityOfOperations[0][1];
-                    whichOperation = 1;
-                }
+                int biggest = priorityOfOperations.get(0);
+                int whichOperation = whichIsIt.get(0);
+
                 int pos = mathQuestion.indexOf("*");
                 double first = Double.parseDouble(mathQuestion.substring(0, pos));
                 double second = Double.parseDouble(mathQuestion.substring(pos + 1, mathQuestion.length()));
@@ -296,45 +312,38 @@ public class MainActivity extends AppCompatActivity {
                     if (whichOperation == 0) {
                         first = first + second;
                         int checker = (int) first;
-                        if(checker == first)
-                        {
+                        if (checker == first) {
                             ScreenOfNumber.setText(Integer.toString(checker));
-                        }
-                        else ScreenOfNumber.setText(Double.toString(first));
+                        } else ScreenOfNumber.setText(Double.toString(first));
                     } else {
                         first = first - second;
                         int checker = (int) first;
-                        if(checker == first)
-                        {
+                        if (checker == first) {
                             ScreenOfNumber.setText(Integer.toString(checker));
-                        }
-                        else ScreenOfNumber.setText(Double.toString(first));
+                        } else ScreenOfNumber.setText(Double.toString(first));
                     }
                 } else if (biggest % 10 == 2) {
                     if (whichOperation == 0) {
                         first = first / second;
                         int checker = (int) first;
-                        if(checker == first)
-                        {
+                        if (checker == first) {
                             ScreenOfNumber.setText(Integer.toString(checker));
-                        }
-                        else ScreenOfNumber.setText(Double.toString(first));
+                        } else ScreenOfNumber.setText(Double.toString(first));
                     } else {
                         first = first * second;
                         int checker = (int) first;
-                        if(checker == first)
-                        {
+                        if (checker == first) {
                             ScreenOfNumber.setText(Integer.toString(checker));
-                        }
-                        else ScreenOfNumber.setText(Double.toString(first));
+                        } else ScreenOfNumber.setText(Double.toString(first));
                     }
                 } else {
                     second = Math.pow(first, second);
+                    //Because 3^3 is the only case foudn that does not work correctly
+                    if (first == 3 && second == 26.99999999999999) second = 27;
                     int checker = (int) second;
-                    if(second == checker){
+                    if (second == checker) {
                         ScreenOfNumber.setText(Integer.toString(checker));
-                    }
-                   else ScreenOfNumber.setText(Double.toString(second));
+                    } else ScreenOfNumber.setText(Double.toString(second));
                 }
             }
             //Counting loop will find the operation to start with
@@ -344,24 +353,16 @@ public class MainActivity extends AppCompatActivity {
                     int currentPos = 0;
                     int whichOperation = 0;
                     for (int j = 0; j < numberOfOperations; j++) {
-                        if (biggest < priorityOfOperations[j][0]) {
-                            biggest = priorityOfOperations[j][0];
+                        if (biggest < priorityOfOperations.get(j)) {
+                            biggest = priorityOfOperations.get(j);
                             currentPos = j;
                             whichOperation = 0;
-                        } else if (biggest < priorityOfOperations[j][1]) {
-                            biggest = priorityOfOperations[j][1];
-                            currentPos = j;
-                            whichOperation = 1;
                         }
+                        for (int jk = 0; jk < numberOfOperations; jk++) {
+                            //If it's the only one then find the location of it
+                            if (currentPos == 0) {
 
-
-                    }
-                    for (int j = 0; j < numberOfOperations; j++) {
-                        //If it's the only one then find the location of it
-                        if (currentPos == 0) {
-
-                            i = numberOfOperations;
-                            j = numberOfOperations;
+                            }
                         }
                     }
                 }
@@ -369,7 +370,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
-
 
 //Will add this later (probably will use an array or so)
 //public void ButtonPositiveNegative(View v){    }
