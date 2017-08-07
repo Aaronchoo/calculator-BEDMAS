@@ -130,6 +130,53 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Onclick for the negative and postivie number
+    public void ButtonNegativePositive(View v) {
+        TextView ScreenOfNumber = (TextView) findViewById(R.id.show_calculations);
+        //Get the current string and save it to a temp string
+        String tempText = ScreenOfNumber.getText().toString();
+        //Turn all text into '*' so it is easier to find the lsat operation (would use 'previousOPeration' to find it but it may contain a decimal and it's not possible to add a negative sign after a decimal
+        if (tempText != "") {
+            //Replaces the operations to '*' to utlizise the indexof operation
+            tempText = tempText.replace('+', '*');
+            tempText = tempText.replace('-', '*');
+            tempText = tempText.replace('/', '*');
+            tempText = tempText.replace('(', '*');
+            tempText = tempText.replace('^', '*');
+            //Get the position
+            int positionOfLast = tempText.lastIndexOf('*');
+            //Have a string that holds the length of the string
+            int textString =ScreenOfNumber.getText().toString().length()-1;
+            //Checks to se if the position of the last index for the '*' is and makes sure that the it isn't not in the front
+            if (positionOfLast != textString&& positionOfLast >= 0) {
+                tempText = tempText.substring(positionOfLast+1, ScreenOfNumber.getText().toString().length());
+                if (tempText.contains(")")) {
+                    tempText = tempText.replace(')', ' ');
+                    tempText = tempText.trim();
+                }
+                //Gets the double of the temp text
+                double valueOfNumber = Double.parseDouble(tempText);
+                //The value will be multiplied by a negative one
+                valueOfNumber = valueOfNumber * (-1);
+                //Tyrns it back to string and adds it to the rest of the full string
+                tempText = ScreenOfNumber.getText().toString();
+                int checker = (int) valueOfNumber;
+                if (valueOfNumber == checker) {
+                    ScreenOfNumber.setText(tempText.substring(0, positionOfLast + 1) + Integer.toString(checker));
+                } else
+                    ScreenOfNumber.setText(tempText.substring(0, positionOfLast + 1) + valueOfNumber);
+            } else if (positionOfLast == -1) {
+                double valueOfNumber = Double.parseDouble(tempText);
+                valueOfNumber = valueOfNumber * (-1);
+                //if that was the only operation, return the value of the new number
+                int checker = (int) valueOfNumber;
+                if (valueOfNumber == checker) {
+                    ScreenOfNumber.setText(Integer.toString(checker));
+                } else ScreenOfNumber.setText(Double.toString(valueOfNumber));
+            }
+        }
+    }
+
     public void ButtonBracketOpen(View v) {
         //Can be inserted anywhere but a decimal dot so it can be inserted like a number
         TextView ScreenOfNumber = (TextView) findViewById(R.id.show_calculations);
@@ -237,14 +284,14 @@ public class MainActivity extends AppCompatActivity {
                     numberOfOperations += 1;
                 } else if (mathQuestion.substring(i, i + 1).equals("-")) {
                     //The lower the number the less priority it will receive
-                   if (i !=0){
-                       String top = mathQuestion.substring(i-1,i);
-                       if(top.equals(")") || top.equals("0") || top.equals("1") || top.equals("3") || top.equals("2") || top.equals("4") || top.equals("5") || top.equals("6") || top.equals("7") || top.equals("8") || top.equals("9")){
-                           priorityOfOperations.add(1 + 10 * bracketsInside);
-                           whichIsIt.add(1);
-                           //Increase the ocunter
-                           numberOfOperations += 1;
-                       }
+                    if (i != 0) {
+                        String top = mathQuestion.substring(i - 1, i);
+                        if (top.equals(")") || top.equals("0") || top.equals("1") || top.equals("3") || top.equals("2") || top.equals("4") || top.equals("5") || top.equals("6") || top.equals("7") || top.equals("8") || top.equals("9")) {
+                            priorityOfOperations.add(1 + 10 * bracketsInside);
+                            whichIsIt.add(1);
+                            //Increase the ocunter
+                            numberOfOperations += 1;
+                        }
 
                     }
                 } else if (mathQuestion.substring(i, i + 1).equals("/")) {
@@ -307,24 +354,31 @@ public class MainActivity extends AppCompatActivity {
             int indexOfFindings = mathQuestion.indexOf('-');
             while (indexOfFindings >= 0) {
                 //string to hold the character before the '-'
+                //Checks to find the specific index of the '-'
                 if (indexOfFindings > 0) {
+                    //use substring to figure out the character before the one being observed
                     String previousCharacter = mathQuestion.substring(indexOfFindings - 1, indexOfFindings);
                     {
+                        //Checks to see if the previous character is a number or brackets
+                        //Also check if the location of the last operation is also the last character in the string
                         if (mathQuestion.length() == indexOfFindings + 1 && (previousCharacter.equals(")") || previousCharacter.equals("0") || previousCharacter.equals("1") || previousCharacter.equals("3") || previousCharacter.equals("2") || previousCharacter.equals("4") || previousCharacter.equals("5") || previousCharacter.equals("6") || previousCharacter.equals("7") || previousCharacter.equals("8") || previousCharacter.equals("9"))) {
+                           //add it in the end
                             mathQuestion = mathQuestion.substring(0, indexOfFindings) + "*";
+                            //Otherwise checks if the numbers/brackets is the previous character meaning
+                            //If it is number/brackets then the '-' must be a minus sign and not a negative
                         } else if (previousCharacter.equals(")") || previousCharacter.equals("0") || previousCharacter.equals("1") || previousCharacter.equals("3") || previousCharacter.equals("2") || previousCharacter.equals("4") || previousCharacter.equals("5") || previousCharacter.equals("6") || previousCharacter.equals("7") || previousCharacter.equals("8") || previousCharacter.equals("9")) {
                             mathQuestion = mathQuestion.substring(0, indexOfFindings) + "*" + mathQuestion.substring(indexOfFindings + 1, mathQuestion.length());
-                        }
-                        else{
-                            mathQuestion ="&"+ mathQuestion.substring(1,mathQuestion.length());
+                        } else  {
+                            //Adds the negative sign to the list
+                            mathQuestion = mathQuestion.substring(0,indexOfFindings)+"&" +mathQuestion.substring(indexOfFindings+1, mathQuestion.length());
                         }
                     }
-                }else{
-                    mathQuestion ="&"+ mathQuestion.substring(1,mathQuestion.length());
+                } else {
+                    mathQuestion = "&" + mathQuestion.substring(1, mathQuestion.length());
                 }
                 indexOfFindings = mathQuestion.indexOf('-');
             }
-          mathQuestion=  mathQuestion.replace('&','-');
+            mathQuestion = mathQuestion.replace('&', '-');
             //If there is only one number
             if (numberOfOperations == 1) {
                 //Since there is only one operation in the equation, the priority will automatically be given to the only operation

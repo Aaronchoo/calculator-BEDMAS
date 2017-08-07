@@ -27,6 +27,11 @@
 
         <Button
             style="@style/CalculatorButton"
+            android:text="+/-"
+            android:onClick="ButtonNegativePositive"
+            />
+        <Button
+            style="@style/CalculatorButton"
             android:text="C"
             android:onClick="ButtonClear"
             />
