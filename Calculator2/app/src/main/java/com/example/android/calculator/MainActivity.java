@@ -2,12 +2,14 @@ package com.example.android.calculator;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyCharacterMap;
 import android.view.View;
 import android.view.animation.BounceInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -146,26 +148,65 @@ public class MainActivity extends AppCompatActivity {
             //Get the position
             int positionOfLast = tempText.lastIndexOf('*');
             //Have a string that holds the length of the string
-            int textString =ScreenOfNumber.getText().toString().length()-1;
+            int textString = ScreenOfNumber.getText().toString().length() - 1;
+            //Gets a temporary text that will save the number
+            tempText = tempText.substring(positionOfLast + 1, ScreenOfNumber.getText().toString().length());
             //Checks to se if the position of the last index for the '*' is and makes sure that the it isn't not in the front
-            if (positionOfLast != textString&& positionOfLast >= 0) {
-                tempText = tempText.substring(positionOfLast+1, ScreenOfNumber.getText().toString().length());
-                if (tempText.contains(")")) {
-                    tempText = tempText.replace(')', ' ');
-                    tempText = tempText.trim();
+            if (positionOfLast != textString && positionOfLast > 0) {
+                //Removes any brackets behind it to avoid errors in numbers
+                //Maybe check for those*************************************************************
+                int counter=0;
+               if (tempText.contains(")")) {
+                   //Find the number of closing brackets were deleted and will account for it
+                   counter = tempText.length()-tempText.replace(")","").length();
+                   tempText = tempText.replace(")", "");
                 }
-                //Gets the double of the temp text
-                double valueOfNumber = Double.parseDouble(tempText);
-                //The value will be multiplied by a negative one
-                valueOfNumber = valueOfNumber * (-1);
-                //Tyrns it back to string and adds it to the rest of the full string
-                tempText = ScreenOfNumber.getText().toString();
-                int checker = (int) valueOfNumber;
-                if (valueOfNumber == checker) {
-                    ScreenOfNumber.setText(tempText.substring(0, positionOfLast + 1) + Integer.toString(checker));
-                } else
-                    ScreenOfNumber.setText(tempText.substring(0, positionOfLast + 1) + valueOfNumber);
-            } else if (positionOfLast == -1) {
+                //Sees if the previous operation or button clicked was the negative/postive and sees if the number was previously negative or positive
+                if (previousOperation.equals("--")) {
+                    //Sets the temporary string to the specific negative number
+                    tempText = ScreenOfNumber.getText().toString().substring(positionOfLast, ScreenOfNumber.getText().toString().length()-counter);
+                    double valueOfNumber = Double.parseDouble(tempText);
+                    //The value will be multiplied by a negative one
+                    valueOfNumber = valueOfNumber * (-1);
+                    //Tyrns it back to string and adds it to the rest of the full string
+                    tempText = ScreenOfNumber.getText().toString();
+                    //Adds the value back to the string
+                    int checker = (int) valueOfNumber;
+                    if (valueOfNumber == checker) {
+                        ScreenOfNumber.setText(ScreenOfNumber.getText().toString().substring(0, positionOfLast) + Integer.toString(checker));
+                    } else
+                        ScreenOfNumber.setText(ScreenOfNumber.getText().toString().substring(0, positionOfLast) + valueOfNumber);
+                    //Since the number is now positive, make the new previous operation a postive sign
+                    String addClosingBRackets = "";
+                    //Add back all the closing brackets that were missed
+                    for(int i = 0; i < counter; i++){
+                        addClosingBRackets=addClosingBRackets+")";
+                    }
+                    if(counter>0){
+                        ScreenOfNumber.setText(ScreenOfNumber.getText().toString() + addClosingBRackets);
+                    }
+                    //Change the previous operation to changing positive
+                    previousOperation = "++";
+                } else {
+                     //Gets a temporary text that will save the number
+                   tempText = ScreenOfNumber.getText().toString().substring(positionOfLast + 1, ScreenOfNumber.getText().toString().length()-counter);
+                    double valueOfNumber = Double.parseDouble(tempText);
+                    //The value will be multiplied by a negative one
+                    valueOfNumber = valueOfNumber * (-1);
+                    //Tyrns it back to string and adds it to the rest of the full string
+                    tempText = ScreenOfNumber.getText().toString();
+                    int checker = (int) valueOfNumber;
+                    if (valueOfNumber == checker) {
+                        ScreenOfNumber.setText(ScreenOfNumber.getText().toString().substring(0, positionOfLast + 1) + Integer.toString(checker));
+                    } else {
+                        ScreenOfNumber.setText(ScreenOfNumber.getText().toString().substring(0, positionOfLast + 1) + valueOfNumber);
+                    }
+                    //Sets it to show it is now negative
+                    previousOperation = "--";
+                }
+
+            } //If there is no operations at all jsut numbers
+             else if (positionOfLast == -1) {
                 double valueOfNumber = Double.parseDouble(tempText);
                 valueOfNumber = valueOfNumber * (-1);
                 //if that was the only operation, return the value of the new number
@@ -173,6 +214,48 @@ public class MainActivity extends AppCompatActivity {
                 if (valueOfNumber == checker) {
                     ScreenOfNumber.setText(Integer.toString(checker));
                 } else ScreenOfNumber.setText(Double.toString(valueOfNumber));
+                //Sets it to show that a negative operation has been completed
+                previousOperation = "--";
+            } else if(positionOfLast==0){
+                //Will get the text for the entire text view
+                tempText =ScreenOfNumber.getText().toString();
+                //String to save the only two possibilities: negative sign or open bracket
+                String extra ="";
+                //Will see if it is the negative
+                if(ScreenOfNumber.getText().toString().contains("-")) {
+                    //If so then get the entire negative number and set the previous operation to show it is now positive
+                    tempText = tempText.substring(positionOfLast, ScreenOfNumber.getText().toString().length());previousOperation="++";
+                }//Otherwise get just the number and save the open bracket plus save the previous operation to show it is now negative
+                else {tempText =tempText.substring(positionOfLast+1, ScreenOfNumber.getText().toString().length());extra="(";previousOperation="--";}
+                //Get rid of the brackets
+                int counter=0;
+                //Count the closing brackets and save them to be added later
+                if (tempText.contains(")")) {
+                    counter = tempText.length()-tempText.replace(")","").length();
+                    tempText = tempText.replace(")", "");
+                }
+                double valueOfNumber = Double.parseDouble(tempText);
+                //The value will be multiplied by a negative one
+                valueOfNumber = valueOfNumber * (-1);
+                //Tyrns it back to string and adds it to the rest of the full string
+                tempText = ScreenOfNumber.getText().toString();
+                int checker = (int) valueOfNumber;
+                if (valueOfNumber == checker) {
+                    ScreenOfNumber.setText(extra+checker);
+                } else
+                    ScreenOfNumber.setText(extra+(valueOfNumber));
+                //String will hold all the closing brackets needed to be added
+                String addClosingBRackets = "";
+                for(int i = 0; i < counter; i++){
+                    addClosingBRackets=addClosingBRackets+")";
+                }
+                //Will add it if there is a point and update the text view text
+                if(counter>0){
+                    String holdCurrent =ScreenOfNumber.getText().toString()+ addClosingBRackets;
+                    ScreenOfNumber.setText( holdCurrent);
+                }
+
+
             }
         }
     }
@@ -205,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ButtonBracketClose(View v) {
-        addOperations(")");
+        if(numberOfBrackets>0) {addOperations(")");}
         //Can be added anywhere expect before a dot
 
 
@@ -347,9 +430,8 @@ public class MainActivity extends AppCompatActivity {
             mathQuestion = mathQuestion.replace('/', '*');
             mathQuestion = mathQuestion.replace('*', '*');
             mathQuestion = mathQuestion.replace('^', '*');
-            mathQuestion = mathQuestion.replace('(', ' ');
-            mathQuestion = mathQuestion.replace(')', ' ');
-            mathQuestion = mathQuestion.trim();
+            mathQuestion = mathQuestion.replace("(", "");
+            mathQuestion = mathQuestion.replace(")", "");
             //int that will track the index of findings
             int indexOfFindings = mathQuestion.indexOf('-');
             while (indexOfFindings >= 0) {
@@ -362,15 +444,15 @@ public class MainActivity extends AppCompatActivity {
                         //Checks to see if the previous character is a number or brackets
                         //Also check if the location of the last operation is also the last character in the string
                         if (mathQuestion.length() == indexOfFindings + 1 && (previousCharacter.equals(")") || previousCharacter.equals("0") || previousCharacter.equals("1") || previousCharacter.equals("3") || previousCharacter.equals("2") || previousCharacter.equals("4") || previousCharacter.equals("5") || previousCharacter.equals("6") || previousCharacter.equals("7") || previousCharacter.equals("8") || previousCharacter.equals("9"))) {
-                           //add it in the end
+                            //add it in the end
                             mathQuestion = mathQuestion.substring(0, indexOfFindings) + "*";
                             //Otherwise checks if the numbers/brackets is the previous character meaning
                             //If it is number/brackets then the '-' must be a minus sign and not a negative
                         } else if (previousCharacter.equals(")") || previousCharacter.equals("0") || previousCharacter.equals("1") || previousCharacter.equals("3") || previousCharacter.equals("2") || previousCharacter.equals("4") || previousCharacter.equals("5") || previousCharacter.equals("6") || previousCharacter.equals("7") || previousCharacter.equals("8") || previousCharacter.equals("9")) {
                             mathQuestion = mathQuestion.substring(0, indexOfFindings) + "*" + mathQuestion.substring(indexOfFindings + 1, mathQuestion.length());
-                        } else  {
+                        } else {
                             //Adds the negative sign to the list
-                            mathQuestion = mathQuestion.substring(0,indexOfFindings)+"&" +mathQuestion.substring(indexOfFindings+1, mathQuestion.length());
+                            mathQuestion = mathQuestion.substring(0, indexOfFindings) + "&" + mathQuestion.substring(indexOfFindings + 1, mathQuestion.length());
                         }
                     }
                 } else {
