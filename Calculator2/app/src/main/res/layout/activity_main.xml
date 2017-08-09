@@ -28,26 +28,31 @@
         <Button
             style="@style/CalculatorButton"
             android:text="+/-"
+            android:id="@+id/button_number_negative_positive"
             android:onClick="ButtonNegativePositive"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="C"
+            android:id="@+id/button_number_clear"
             android:onClick="ButtonClear"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="^"
+            android:id="@+id/button_exponent"
             android:onClick="ButtonExpo"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="("
+            android:id="@+id/button_open_bracket"
             android:onClick="ButtonBracketOpen"
             />
         <Button
             style="@style/CalculatorButton"
             android:text=")"
+            android:id="@+id/button_closing_bracket"
             android:onClick="ButtonBracketClose"
             />
 
@@ -61,25 +66,30 @@
         <Button
             style="@style/CalculatorButton"
             android:text="7"
+            android:id="@+id/button_number_7"
             android:onClick="ButtonSeven"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="8"
+            android:id="@+id/button_number_8"
             android:onClick="ButtonEight"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="9"
+            android:id="@+id/button_number_9"
             android:onClick="ButtonNine"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="+"
+            android:id="@+id/button_plus"
             android:onClick="ButtonPlus"/>
         <Button
             style="@style/CalculatorButton"
             android:text="-"
+            android:id="@+id/button_minus"
             android:onClick="ButtonMinus"
             />
 
@@ -93,26 +103,31 @@
         <Button
             style="@style/CalculatorButton"
             android:text="4"
+            android:id="@+id/button_number_4"
             android:onClick="ButtonFour"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="5"
+            android:id="@+id/button_number_5"
             android:onClick="ButtonFive"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="6"
+            android:id="@+id/button_number_6"
             android:onClick="ButtonSix"
             />
         <Button
             style="@style/CalculatorButton"
+            android:id="@+id/button_division"
             android:text="/"
             android:onClick="ButtonDivision"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="*"
+            android:id="@+id/button_multiply"
             android:onClick="ButtonMultiply"
             />
 
@@ -127,22 +142,26 @@
             style="@style/CalculatorButton"
             android:text="1"
             android:onClick="ButtonOne"
+            android:id="@+id/button_number_1"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="2"
             android:onClick="ButtonTwo"
+            android:id="@+id/button_number_2"
             />
         <Button
             style="@style/CalculatorButton"
             android:text="3"
             android:onClick="ButtonThree"
+            android:id="@+id/button_number_3"
             />
         <Button
             style="@style/CalculatorButton"
             android:layout_weight="2"
             android:text="Delete"
             android:onClick="ButtonDelete"
+            android:id="@+id/button_number_delete"
             />
 
 
@@ -157,16 +176,19 @@
         <Button
             style="@style/CalculatorButton"
             android:layout_weight="2"
+            android:id="@+id/button_number_0"
             android:text="0" android:onClick="ButtonZero" />
 
         <Button
             style="@style/CalculatorButton"
             android:text="."
+            android:id="@+id/button_dot"
             android:onClick="ButtonDot"/>
 
         <Button
             style="@style/CalculatorButton"
             android:layout_weight="2"
+            android:id="@+id/button_submit"
             android:onClick="ButtonSubmit"
             android:text="=" />
 

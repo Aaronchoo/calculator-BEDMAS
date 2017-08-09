@@ -1,16 +1,24 @@
 package com.example.android.calculator;
 
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.os.Handler;
+import android.provider.CalendarContract;
+import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyCharacterMap;
 import android.view.View;
 import android.view.animation.BounceInterpolator;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+
+import static com.example.android.calculator.R.drawable.outline_for_button;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,69 +70,117 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //@para button that needs to temporary change the number
+    //Will take in the button, set the timer to activate
+    //Will change the backgrouund colour then quickly back to the original colour
+    public void ChangeButtonColour(final Button myButton){
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                myButton.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                myButton.setTextColor(Color.BLACK);
+                myButton.setBackgroundResource(R.drawable.outline_for_button);
+            }
+        }, 15);
+        myButton.setBackgroundColor(Color.parseColor("#ff4081"));
+        myButton.setTextColor(Color.WHITE);
+    }
+
     //Onclicks for the buttons to add the numbers and different operations
     public void ButtonOne(View v) {
+        final Button myButton = (Button) findViewById(R.id.button_number_1);
         inputNumericalValue("1");
+       ChangeButtonColour(myButton);
     }
 
     public void ButtonTwo(View v) {
         inputNumericalValue("2");
+        final Button myButton = (Button) findViewById(R.id.button_number_2);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonThree(View v) {
         inputNumericalValue("3");
+        final Button myButton = (Button) findViewById(R.id.button_number_3);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonFour(View v) {
         inputNumericalValue("4");
+        final Button myButton = (Button) findViewById(R.id.button_number_4);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonFive(View v) {
         inputNumericalValue("5");
+        final Button myButton = (Button) findViewById(R.id.button_number_5);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonSix(View v) {
         inputNumericalValue("6");
+        final Button myButton = (Button) findViewById(R.id.button_number_6);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonSeven(View v) {
         inputNumericalValue("7");
+        final Button myButton = (Button) findViewById(R.id.button_number_7);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonEight(View v) {
         inputNumericalValue("8");
+        final Button myButton = (Button) findViewById(R.id.button_number_8);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonNine(View v) {
         inputNumericalValue("9");
+        final Button myButton = (Button) findViewById(R.id.button_number_9);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonZero(View v) {
         inputNumericalValue("0");
+        final Button myButton = (Button) findViewById(R.id.button_number_0);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonExpo(View v) {
         addOperations("^(");
-
+        final Button myButton = (Button) findViewById(R.id.button_exponent);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonPlus(View v) {
         addOperations("+");
+        final Button myButton = (Button) findViewById(R.id.button_plus);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonMinus(View v) {
         addOperations("-");
+        final Button myButton = (Button) findViewById(R.id.button_minus);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonDivision(View v) {
         addOperations("/");
+        final Button myButton = (Button) findViewById(R.id.button_division);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonMultiply(View v) {
         addOperations("*");
+        final Button myButton = (Button) findViewById(R.id.button_multiply);
+        ChangeButtonColour(myButton);
     }
 
     public void ButtonDot(View v) {
+        final Button myButton = (Button) findViewById(R.id.button_dot);
+        ChangeButtonColour(myButton);
         //Checks if a dot has been used yet
         if (!previousOperation.equals(".")) {
             //Will allow the decimal if one has not been used yet (for the number)
@@ -134,11 +190,13 @@ public class MainActivity extends AppCompatActivity {
 
     //Onclick for the negative and postivie number
     public void ButtonNegativePositive(View v) {
+        final Button myButton = (Button) findViewById(R.id.button_number_negative_positive);
+        ChangeButtonColour(myButton);
         TextView ScreenOfNumber = (TextView) findViewById(R.id.show_calculations);
         //Get the current string and save it to a temp string
         String tempText = ScreenOfNumber.getText().toString();
         //Turn all text into '*' so it is easier to find the lsat operation (would use 'previousOPeration' to find it but it may contain a decimal and it's not possible to add a negative sign after a decimal
-        if (tempText != "") {
+        if (!tempText.equals("")) {
             //Replaces the operations to '*' to utlizise the indexof operation
             tempText = tempText.replace('+', '*');
             tempText = tempText.replace('-', '*');
@@ -155,16 +213,16 @@ public class MainActivity extends AppCompatActivity {
             if (positionOfLast != textString && positionOfLast > 0) {
                 //Removes any brackets behind it to avoid errors in numbers
                 //Maybe check for those*************************************************************
-                int counter=0;
-               if (tempText.contains(")")) {
-                   //Find the number of closing brackets were deleted and will account for it
-                   counter = tempText.length()-tempText.replace(")","").length();
-                   tempText = tempText.replace(")", "");
+                int counter = 0;
+                if (tempText.contains(")")) {
+                    //Find the number of closing brackets were deleted and will account for it
+                    counter = tempText.length() - tempText.replace(")", "").length();
+                    tempText = tempText.replace(")", "");
                 }
                 //Sees if the previous operation or button clicked was the negative/postive and sees if the number was previously negative or positive
                 if (previousOperation.equals("--")) {
                     //Sets the temporary string to the specific negative number
-                    tempText = ScreenOfNumber.getText().toString().substring(positionOfLast, ScreenOfNumber.getText().toString().length()-counter);
+                    tempText = ScreenOfNumber.getText().toString().substring(positionOfLast, ScreenOfNumber.getText().toString().length() - counter);
                     double valueOfNumber = Double.parseDouble(tempText);
                     //The value will be multiplied by a negative one
                     valueOfNumber = valueOfNumber * (-1);
@@ -179,17 +237,17 @@ public class MainActivity extends AppCompatActivity {
                     //Since the number is now positive, make the new previous operation a postive sign
                     String addClosingBRackets = "";
                     //Add back all the closing brackets that were missed
-                    for(int i = 0; i < counter; i++){
-                        addClosingBRackets=addClosingBRackets+")";
+                    for (int i = 0; i < counter; i++) {
+                        addClosingBRackets = addClosingBRackets + ")";
                     }
-                    if(counter>0){
+                    if (counter > 0) {
                         ScreenOfNumber.setText(ScreenOfNumber.getText().toString() + addClosingBRackets);
                     }
                     //Change the previous operation to changing positive
                     previousOperation = "++";
                 } else {
-                     //Gets a temporary text that will save the number
-                   tempText = ScreenOfNumber.getText().toString().substring(positionOfLast + 1, ScreenOfNumber.getText().toString().length()-counter);
+                    //Gets a temporary text that will save the number
+                    tempText = ScreenOfNumber.getText().toString().substring(positionOfLast + 1, ScreenOfNumber.getText().toString().length() - counter);
                     double valueOfNumber = Double.parseDouble(tempText);
                     //The value will be multiplied by a negative one
                     valueOfNumber = valueOfNumber * (-1);
@@ -201,12 +259,21 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         ScreenOfNumber.setText(ScreenOfNumber.getText().toString().substring(0, positionOfLast + 1) + valueOfNumber);
                     }
+                    //Since the number is now positive, make the new previous operation a postive sign
+                    String addClosingBRackets = "";
+                    //Add back all the closing brackets that were missed
+                    for (int i = 0; i < counter; i++) {
+                        addClosingBRackets = addClosingBRackets + ")";
+                    }
+                    if (counter > 0) {
+                        ScreenOfNumber.setText(ScreenOfNumber.getText().toString() + addClosingBRackets);
+                    }
                     //Sets it to show it is now negative
                     previousOperation = "--";
                 }
 
             } //If there is no operations at all jsut numbers
-             else if (positionOfLast == -1) {
+            else if (positionOfLast == -1) {
                 double valueOfNumber = Double.parseDouble(tempText);
                 valueOfNumber = valueOfNumber * (-1);
                 //if that was the only operation, return the value of the new number
@@ -216,22 +283,27 @@ public class MainActivity extends AppCompatActivity {
                 } else ScreenOfNumber.setText(Double.toString(valueOfNumber));
                 //Sets it to show that a negative operation has been completed
                 previousOperation = "--";
-            } else if(positionOfLast==0){
+            } else if (positionOfLast == 0) {
                 //Will get the text for the entire text view
-                tempText =ScreenOfNumber.getText().toString();
+                tempText = ScreenOfNumber.getText().toString();
                 //String to save the only two possibilities: negative sign or open bracket
-                String extra ="";
+                String extra = "";
                 //Will see if it is the negative
-                if(ScreenOfNumber.getText().toString().contains("-")) {
+                if (ScreenOfNumber.getText().toString().contains("-")) {
                     //If so then get the entire negative number and set the previous operation to show it is now positive
-                    tempText = tempText.substring(positionOfLast, ScreenOfNumber.getText().toString().length());previousOperation="++";
+                    tempText = tempText.substring(positionOfLast, ScreenOfNumber.getText().toString().length());
+                    previousOperation = "++";
                 }//Otherwise get just the number and save the open bracket plus save the previous operation to show it is now negative
-                else {tempText =tempText.substring(positionOfLast+1, ScreenOfNumber.getText().toString().length());extra="(";previousOperation="--";}
+                else {
+                    tempText = tempText.substring(positionOfLast + 1, ScreenOfNumber.getText().toString().length());
+                    extra = "(";
+                    previousOperation = "--";
+                }
                 //Get rid of the brackets
-                int counter=0;
+                int counter = 0;
                 //Count the closing brackets and save them to be added later
                 if (tempText.contains(")")) {
-                    counter = tempText.length()-tempText.replace(")","").length();
+                    counter = tempText.length() - tempText.replace(")", "").length();
                     tempText = tempText.replace(")", "");
                 }
                 double valueOfNumber = Double.parseDouble(tempText);
@@ -241,18 +313,18 @@ public class MainActivity extends AppCompatActivity {
                 tempText = ScreenOfNumber.getText().toString();
                 int checker = (int) valueOfNumber;
                 if (valueOfNumber == checker) {
-                    ScreenOfNumber.setText(extra+checker);
+                    ScreenOfNumber.setText(extra + checker);
                 } else
-                    ScreenOfNumber.setText(extra+(valueOfNumber));
+                    ScreenOfNumber.setText(extra + (valueOfNumber));
                 //String will hold all the closing brackets needed to be added
                 String addClosingBRackets = "";
-                for(int i = 0; i < counter; i++){
-                    addClosingBRackets=addClosingBRackets+")";
+                for (int i = 0; i < counter; i++) {
+                    addClosingBRackets = addClosingBRackets + ")";
                 }
                 //Will add it if there is a point and update the text view text
-                if(counter>0){
-                    String holdCurrent =ScreenOfNumber.getText().toString()+ addClosingBRackets;
-                    ScreenOfNumber.setText( holdCurrent);
+                if (counter > 0) {
+                    String holdCurrent = ScreenOfNumber.getText().toString() + addClosingBRackets;
+                    ScreenOfNumber.setText(holdCurrent);
                 }
 
 
@@ -261,6 +333,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ButtonBracketOpen(View v) {
+        final Button myButton = (Button) findViewById(R.id.button_open_bracket);
+        ChangeButtonColour(myButton);
         //Can be inserted anywhere but a decimal dot so it can be inserted like a number
         TextView ScreenOfNumber = (TextView) findViewById(R.id.show_calculations);
         //String that gets the current text
@@ -288,7 +362,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ButtonBracketClose(View v) {
-        if(numberOfBrackets>0) {addOperations(")");}
+        final Button myButton = (Button) findViewById(R.id.button_closing_bracket);
+        ChangeButtonColour(myButton);
+        if (numberOfBrackets > 0) {
+            addOperations(")");
+        }
         //Can be added anywhere expect before a dot
 
 
@@ -296,6 +374,8 @@ public class MainActivity extends AppCompatActivity {
 
     //OnClick for the clear button
     public void ButtonClear(View v) {
+        final Button myButton = (Button) findViewById(R.id.button_number_clear);
+        ChangeButtonColour(myButton);
         //Will set the text to being empty
         TextView ScreenOfNumber = (TextView) findViewById(R.id.show_calculations);
         ScreenOfNumber.setText("");
@@ -304,6 +384,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ButtonDelete(View v) {
+        final Button myButton = (Button) findViewById(R.id.button_number_delete);
+        ChangeButtonColour(myButton);
         TextView ScreenOfNumber = (TextView) findViewById(R.id.show_calculations);
         String currentValue = ScreenOfNumber.getText().toString();
         //Makes sure that the string is not empty before deleting the last character
@@ -313,15 +395,29 @@ public class MainActivity extends AppCompatActivity {
             if (lastOne.equals(".")) previousOperation = "random";
             else if (lastOne.equals(")")) numberOfBrackets += 1;
             else if (lastOne.equals("(")) numberOfBrackets -= 1;
-            //Get the string except for the last letter of the current text by using substrings
-            String deletedOne = currentValue.substring(0, currentValue.length() - 1);
-            //Set text to the new updated String
-            ScreenOfNumber.setText(deletedOne);
+            //Checks to see if the current string has a negative sign in the front of the number
+            else if(currentValue.lastIndexOf("-") == currentValue.length()-2 && previousOperation.equals("--") &&(lastOne.equals("0") || lastOne.equals("1") || lastOne.equals("3") || lastOne.equals("2") || lastOne.equals("4") || lastOne.equals("5") || lastOne.equals("6") || lastOne.equals("7") || lastOne.equals("8") || lastOne.equals("9"))){
+                //Get the string except for the last letter of the current text by using substrings
+                currentValue = currentValue.substring(0, currentValue.length() - 1);
+            }
+            if (lastOne.equals("y")) {
+                //Only case where y appaears is if it it infinity.
+                //Sets the entire thing blank
+                ScreenOfNumber.setText("");
+            } else {
+                //Get the string except for the last letter of the current text by using substrings
+                String deletedOne = currentValue.substring(0, currentValue.length() - 1);
+                //Set text to the new updated String
+                ScreenOfNumber.setText(deletedOne);
+            }
+
         }
 
     }
 
     public void ButtonSubmit(View v) {
+        final Button myButton = (Button) findViewById(R.id.button_submit);
+        ChangeButtonColour(myButton);
         TextView ScreenOfNumber = (TextView) findViewById(R.id.show_calculations);
         //Get the math problem the user wants to calculator to solve
         String mathQuestion = ScreenOfNumber.getText().toString();
