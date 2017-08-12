@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             //Taking the last character from the string using substrings
             String last = currentValue.substring(currentValue.length() - 1, currentValue.length());
             //Makes sure that the operation follows a number and not another operation or such
-            if (last.equals(")") || last.equals("0") || last.equals("1") || last.equals("3") || last.equals("2") || last.equals("4") || last.equals("5") || last.equals("6") || last.equals("7") || last.equals("8") || last.equals("9")) {
+            if (last.equals(")") || isEqualNumbers(last)) {
                 //Add the operation to the text
                 ScreenOfNumber.setText(currentValue + operation);
                 //Save the operation added to make sure that certain ones are not able to repeat
@@ -189,6 +189,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Change all operation signs in the string to "*"
+    //@param will be the string that needs to be changed
+    public String identifyAllOperations(String tempText, boolean closing) {
+        tempText = tempText.replace('+', '*');
+        tempText = tempText.replace('-', '*');
+        tempText = tempText.replace('/', '*');
+        tempText = tempText.replace('(', '*');
+        tempText = tempText.replace('^', '*');
+        tempText = tempText.replace('(', '*');
+        if (closing == true) tempText = tempText.replace(')', '*');
+        return tempText;
+    }
+
     //Onclick for the negative and postivie number
     public void ButtonNegativePositive(View v) {
         final Button myButton = (Button) findViewById(R.id.button_number_negative_positive);
@@ -214,28 +227,26 @@ public class MainActivity extends AppCompatActivity {
             //Figures out if there are any brackets behind it or other operation
             int numberEnds = findLastNumber.lastIndexOf('*');
             int lastClosing = findLastNumber.lastIndexOf('&');
+            int lastAnythingElse = identifyAllOperations(findLastNumber,false).lastIndexOf('*');
             //Figure out where the other operation starts before the last digit entered
             //Makes sure that there are acutal numbers before changin gthe text to cut off at the last number
-           if(numberEnds>0) tempText = tempText.substring(0, numberEnds + 1);
-            //Replaces the operations to '*' to utlizise the indexof operation
-            tempText = tempText.replace('+', '*');
-            tempText = tempText.replace('-', '*');
-            tempText = tempText.replace('/', '*');
-            tempText = tempText.replace('(', '*');
-            tempText = tempText.replace('^', '*');
-            tempText = tempText.replace('(', '*');
-            tempText = tempText.replace(')', '*');
+            //Will also ensure that any operation does not go before the last number
+            if (numberEnds > 0 && lastClosing > numberEnds && lastAnythingElse <= numberEnds)
+                tempText = tempText.substring(0, numberEnds + 1);
+            //Change the current text to identify all non-numbers
+            tempText = identifyAllOperations(tempText, true);
             //Get the position
             int positionOfLast = tempText.lastIndexOf('*');
             //Have a string that holds the length of the string
             int textString = ScreenOfNumber.getText().toString().length() - 1;
             //Gets a temporary text that will save the number
             //Makes sure that there are acutal numbers
-            if(numberEnds>0)tempText = tempText.substring(positionOfLast + 1, numberEnds + 1);
+            if (numberEnds > 0 && lastClosing > numberEnds&& lastAnythingElse <= numberEnds)
+                tempText = tempText.substring(positionOfLast + 1, numberEnds + 1);
             //Checks to se if the position of the last index for the '*' is and makes sure that the it isn't not in the front
             if ((positionOfLast != textString && positionOfLast > 0)) {
-                //Sees if the previous operation or button clicked was the negative/postive and sees if the number was previously negative or positive
-                if (previousOperation.equals("--") || previousOperation.equals("--)")) {
+                //Sees if the previous operation or button clicked was the negative/postive and sees if the number was previously negative or positive by looking at the sign
+                if ((previousOperation.equals("--") || previousOperation.equals("--)")) && ScreenOfNumber.getText().toString().substring(positionOfLast,positionOfLast+1).equals("-")) {
                     //Sets the temporary string to the specific negative number
                     tempText = ScreenOfNumber.getText().toString().substring(positionOfLast, numberEnds + 1);
                     double valueOfNumber = Double.parseDouble(tempText);
@@ -265,11 +276,11 @@ public class MainActivity extends AppCompatActivity {
                     tempText = ScreenOfNumber.getText().toString().substring(positionOfLast + 1, numberEnds + 1);
                     double valueOfNumber = Double.parseDouble(tempText);
                     String bracketJustInCase = "";
-                    if(ScreenOfNumber.getText().toString().substring(positionOfLast,positionOfLast+1).equals(")")){
-                    //add a braacket so the calculator would not think that the negative is a minus after a bracket
-                     bracketJustInCase = "(";
+                    if (ScreenOfNumber.getText().toString().substring(positionOfLast, positionOfLast + 1).equals(")")) {
+                        //add a braacket so the calculator would not think that the negative is a minus after a bracket
+                        bracketJustInCase = "(";
                         //increase number of bracket
-                        numberOfBrackets+=1;
+                        numberOfBrackets += 1;
                     }
                     //The value will be multiplied by a negative one
                     valueOfNumber = valueOfNumber * (-1);
@@ -277,9 +288,9 @@ public class MainActivity extends AppCompatActivity {
                     tempText = ScreenOfNumber.getText().toString();
                     int checker = (int) valueOfNumber;
                     if (valueOfNumber == checker) {
-                        ScreenOfNumber.setText(ScreenOfNumber.getText().toString().substring(0, positionOfLast + 1) +bracketJustInCase+ Integer.toString(checker));
+                        ScreenOfNumber.setText(ScreenOfNumber.getText().toString().substring(0, positionOfLast + 1) + bracketJustInCase + Integer.toString(checker));
                     } else {
-                        ScreenOfNumber.setText(ScreenOfNumber.getText().toString().substring(0, positionOfLast + 1) +bracketJustInCase+ valueOfNumber);
+                        ScreenOfNumber.setText(ScreenOfNumber.getText().toString().substring(0, positionOfLast + 1) + bracketJustInCase + valueOfNumber);
                     }
                     //Since the number is now positive, make the new previous operation a postive sign
                     String addClosingBRackets = "";
@@ -404,10 +415,11 @@ public class MainActivity extends AppCompatActivity {
         final Button myButton = (Button) findViewById(R.id.button_number_clear);
         ChangeButtonColour(myButton);
         //Will set the text to being empty
+        //Updates all the previously saved info
         TextView ScreenOfNumber = (TextView) findViewById(R.id.show_calculations);
         ScreenOfNumber.setText("");
         numberOfBrackets = 0;
-        previousOperation = "random";
+        previousOperation = "";
     }
 
     public void ButtonDelete(View v) {
@@ -419,28 +431,65 @@ public class MainActivity extends AppCompatActivity {
         if (currentValue.length() > 0) {
             //Get the last character
             String lastOne = currentValue.substring(currentValue.length() - 1, currentValue.length());
-            if (lastOne.equals(".")) previousOperation = "random";
-            else if (lastOne.equals(")")) {
+            if (lastOne.equals(")")) {
                 numberOfBrackets += 1;
 
             } else if (lastOne.equals("(")) numberOfBrackets -= 1;
                 //Checks to see if the current string has a negative sign in the front of the number
-            else if (currentValue.lastIndexOf("-") == currentValue.length() - 2 && previousOperation.equals("--") && (lastOne.equals("0") || lastOne.equals("1") || lastOne.equals("3") || lastOne.equals("2") || lastOne.equals("4") || lastOne.equals("5") || lastOne.equals("6") || lastOne.equals("7") || lastOne.equals("8") || lastOne.equals("9"))) {
+            else if (currentValue.lastIndexOf("-") == currentValue.length() - 2 && previousOperation.equals("--") && (isEqualNumbers(lastOne))) {
                 //Get the string except for the last letter of the current text by using substrings
                 currentValue = currentValue.substring(0, currentValue.length() - 1);
-               //Change it due to the fafct that a negative was deleted
-                previousOperation = "rand";
             }
-
+            //Check if the previous operation was a negative or not. Gotta make s
             if (lastOne.equals("y")) {
                 //Only case where y appaears is if it it infinity.
                 //Sets the entire thing blank
                 ScreenOfNumber.setText("");
+                //Make it so there is no positive or negative
+                previousOperation = "";
             } else {
                 //Get the string except for the last letter of the current text by using substrings
                 String deletedOne = currentValue.substring(0, currentValue.length() - 1);
                 //Set text to the new updated String
                 ScreenOfNumber.setText(deletedOne);
+                //Making it easier to find the previous operation
+                String findLastOperation = identifyAllOperations(ScreenOfNumber.getText().toString(), true);
+
+                //Save the last previous operation index into a string
+                int lastPosition = findLastOperation.lastIndexOf('*');
+                //Sees if the position actually exists
+                if (lastPosition == -1) previousOperation = "";
+                else {
+                    //If the last position isn't -1 it means at least one operation exist
+                    //Find that position
+                    findLastOperation = ScreenOfNumber.getText().toString().substring(lastPosition, lastPosition + 1);
+                    //Check if it is a negative sign or minus
+                    if (findLastOperation.equals(")")) {
+                        int OtherthanClosingBracket = identifyAllOperations(ScreenOfNumber.getText().toString(), false).lastIndexOf('*');
+                        if (OtherthanClosingBracket == -1) findLastOperation = "";
+                        else {
+                            previousOperation = "Contains')'";
+                            findLastOperation = ScreenOfNumber.getText().toString().substring(OtherthanClosingBracket, OtherthanClosingBracket + 1);
+                        }
+                    }
+                    if (findLastOperation.equals("-")) {
+                        if (lastPosition == 0) previousOperation = "--";
+                        else {
+                            lastOne = ScreenOfNumber.getText().toString().substring(lastPosition - 1, lastPosition);
+                            if (isEqualOperation(lastOne)) {
+                                if (previousOperation.equals("Contains')'"))
+                                    previousOperation = "--)";
+                                else previousOperation = "--";
+
+                            } else {
+                                previousOperation = "-";
+                            }
+                        }
+                    } else {
+                        //Set the last operation as the last operation
+                        previousOperation = findLastOperation;
+                    }
+                }
             }
 
         }
@@ -461,7 +510,7 @@ public class MainActivity extends AppCompatActivity {
         //Delete unnecessary info
         if (mathQuestion.length() == 0) {
             Toast.makeText(this, "Nothing there!", Toast.LENGTH_SHORT).show();
-        } else if (lastOne.equals("*") || lastOne.equals("/") || lastOne.equals("-") || lastOne.equals("+") || lastOne.equals("^") || lastOne.equals("(")) {
+        } else if (isEqualOperation(lastOne)) {
             Toast.makeText(this, "Cannot end math question with that!", Toast.LENGTH_SHORT).show();
         }//Must check if there are equal amoutn of brackets as user may mess up and forget a few
         else if (numberOfBrackets != 0) {
@@ -500,7 +549,7 @@ public class MainActivity extends AppCompatActivity {
                     //The lower the number the less priority it will receive
                     if (i != 0) {
                         String top = mathQuestion.substring(i - 1, i);
-                        if (top.equals(")") || top.equals("0") || top.equals("1") || top.equals("3") || top.equals("2") || top.equals("4") || top.equals("5") || top.equals("6") || top.equals("7") || top.equals("8") || top.equals("9")) {
+                        if (top.equals(")") || isEqualNumbers(top)) {
                             priorityOfOperations.add(1 + 10 * bracketsInside);
                             whichIsIt.add(1);
                             //Increase the ocunter
@@ -533,7 +582,7 @@ public class MainActivity extends AppCompatActivity {
                         //Get the number/operation that was done before the bracket
                         String last = mathQuestion.substring(i - 1, i);
                         //If the previous value was a number or closing bracket
-                        if (last.equals(")") || last.equals("0") || last.equals("1") || last.equals("3") || last.equals("2") || last.equals("4") || last.equals("5") || last.equals("6") || last.equals("7") || last.equals("8") || last.equals("9")) {
+                        if (last.equals(")") || isEqualNumbers(last)) {
                             //Add a multiplication sign and add it to the priority list
                             mathQuestion = mathQuestion.substring(0, i) + "*" + mathQuestion.substring(i, mathQuestion.length());
                             priorityOfOperations.add(2 + 10 * bracketsInside);
@@ -548,7 +597,7 @@ public class MainActivity extends AppCompatActivity {
                     if (i + 1 < mathQuestion.length()) {
                         //Get the character after the closing bracket
                         String last = mathQuestion.substring(i + 1, i + 2);
-                        if ((last.equals("(") || last.equals("0") || last.equals("1") || last.equals("3") || last.equals("2") || last.equals("4") || last.equals("5") || last.equals("6") || last.equals("7") || last.equals("8") || last.equals("9"))) {
+                        if ((last.equals("(") || isEqualNumbers(last))) {
                             //Add a multiplication sign and add it to the priority list
                             mathQuestion = mathQuestion.substring(0, i + 1) + "*" + mathQuestion.substring(i + 1, mathQuestion.length());
                         }
@@ -556,13 +605,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             //Change all the operations to stars for ease since what the characters are do not have a point now
-            mathQuestion = mathQuestion.replace('+', '*');
-            // Will have to edit the code above to ensure that negatives do not get messed up
-            mathQuestion = mathQuestion.replace('/', '*');
-            mathQuestion = mathQuestion.replace('*', '*');
-            mathQuestion = mathQuestion.replace('^', '*');
-            mathQuestion = mathQuestion.replace("(", "");
-            mathQuestion = mathQuestion.replace(")", "");
+            mathQuestion = identifyAllOperations(mathQuestion, true);
             //int that will track the index of findings
             int indexOfFindings = mathQuestion.indexOf('-');
             while (indexOfFindings >= 0) {
@@ -574,12 +617,12 @@ public class MainActivity extends AppCompatActivity {
                     {
                         //Checks to see if the previous character is a number or brackets
                         //Also check if the location of the last operation is also the last character in the string
-                        if (mathQuestion.length() == indexOfFindings + 1 && (previousCharacter.equals(")") || previousCharacter.equals("0") || previousCharacter.equals("1") || previousCharacter.equals("3") || previousCharacter.equals("2") || previousCharacter.equals("4") || previousCharacter.equals("5") || previousCharacter.equals("6") || previousCharacter.equals("7") || previousCharacter.equals("8") || previousCharacter.equals("9"))) {
+                        if (mathQuestion.length() == indexOfFindings + 1 && (previousCharacter.equals(")") || isEqualNumbers(previousCharacter))) {
                             //add it in the end
                             mathQuestion = mathQuestion.substring(0, indexOfFindings) + "*";
                             //Otherwise checks if the numbers/brackets is the previous character meaning
                             //If it is number/brackets then the '-' must be a minus sign and not a negative
-                        } else if (previousCharacter.equals(")") || previousCharacter.equals("0") || previousCharacter.equals("1") || previousCharacter.equals("3") || previousCharacter.equals("2") || previousCharacter.equals("4") || previousCharacter.equals("5") || previousCharacter.equals("6") || previousCharacter.equals("7") || previousCharacter.equals("8") || previousCharacter.equals("9")) {
+                        } else if (previousCharacter.equals(")") || isEqualNumbers(previousCharacter)) {
                             mathQuestion = mathQuestion.substring(0, indexOfFindings) + "*" + mathQuestion.substring(indexOfFindings + 1, mathQuestion.length());
                         } else {
                             //Adds the negative sign to the list
@@ -890,6 +933,26 @@ public class MainActivity extends AppCompatActivity {
                 return (Integer.toString(checker));
             } else return (Double.toString(first));
         }
+    }
+
+    //Will check to see if the character is equal to a number
+    //@para last is the last character that needs to be checked
+    public boolean isEqualNumbers(String last) {
+        //If the string matches one of the numbers then return true
+        if (last.equals("0") || last.equals("1") || last.equals("3") || last.equals("2") || last.equals("4") || last.equals("5") || last.equals("6") || last.equals("7") || last.equals("8") || last.equals("9"))
+            return true;
+            //Otherwise it isn't a number and program should return false
+        else return false;
+    }
+
+    //Will be used to check if the last character in a string is a operation
+    //@para lastOne is the last character of a string that needs to be checked
+    public boolean isEqualOperation(String lastOne) {
+        //Checks if the last character is an operation sign
+        if (lastOne.equals("*") || lastOne.equals("/") || lastOne.equals("-") || lastOne.equals("+") || lastOne.equals("^") || lastOne.equals("("))
+            return true;
+        //otherwise return a false as it is not
+        else return false;
     }
 }
 
