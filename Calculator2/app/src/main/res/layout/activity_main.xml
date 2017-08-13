@@ -5,16 +5,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
     android:orientation="vertical"
     tools:context="com.example.android.calculator.MainActivity">
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="3"
+        android:background="@drawable/outline_for_operation"
         android:textSize="24sp"
-        android:id="@+id/show_calculations"
         android:gravity="center"
+        android:id="@+id/show_calculations"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -22,35 +22,35 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:orientation="horizontal">
 
         <Button
-            style="@style/CalculatorButton"
+            style="@style/CalculatorButtonOperation"
             android:text="+/-"
             android:id="@+id/button_number_negative_positive"
             android:onClick="ButtonNegativePositive"
             />
         <Button
-            style="@style/CalculatorButton"
+            style="@style/CalculatorButtonOperation"
             android:text="C"
             android:id="@+id/button_number_clear"
             android:onClick="ButtonClear"
             />
         <Button
-            style="@style/CalculatorButton"
+            style="@style/CalculatorButtonOperation"
             android:text="^"
             android:id="@+id/button_exponent"
             android:onClick="ButtonExpo"
             />
         <Button
-            style="@style/CalculatorButton"
+            style="@style/CalculatorButtonOperation"
             android:text="("
             android:id="@+id/button_open_bracket"
             android:onClick="ButtonBracketOpen"
             />
         <Button
-            style="@style/CalculatorButton"
+            style="@style/CalculatorButtonOperation"
             android:text=")"
             android:id="@+id/button_closing_bracket"
             android:onClick="ButtonBracketClose"
@@ -61,7 +61,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:orientation="horizontal">
         <Button
             style="@style/CalculatorButton"
@@ -82,12 +82,12 @@
             android:onClick="ButtonNine"
             />
         <Button
-            style="@style/CalculatorButton"
+            style="@style/CalculatorButtonOperation"
             android:text="+"
             android:id="@+id/button_plus"
             android:onClick="ButtonPlus"/>
         <Button
-            style="@style/CalculatorButton"
+            style="@style/CalculatorButtonOperation"
             android:text="-"
             android:id="@+id/button_minus"
             android:onClick="ButtonMinus"
@@ -98,7 +98,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:orientation="horizontal">
         <Button
             style="@style/CalculatorButton"
@@ -119,14 +119,14 @@
             android:onClick="ButtonSix"
             />
         <Button
-            style="@style/CalculatorButton"
+            style="@style/CalculatorButtonOperation"
             android:id="@+id/button_division"
-            android:text="/"
+            android:text="÷"
             android:onClick="ButtonDivision"
             />
         <Button
-            style="@style/CalculatorButton"
-            android:text="*"
+            style="@style/CalculatorButtonOperation"
+            android:text="X"
             android:id="@+id/button_multiply"
             android:onClick="ButtonMultiply"
             />
@@ -136,7 +136,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:orientation="horizontal">
         <Button
             style="@style/CalculatorButton"
@@ -157,7 +157,7 @@
             android:id="@+id/button_number_3"
             />
         <Button
-            style="@style/CalculatorButton"
+            style="@style/CalculatorButtonOperation"
             android:layout_weight="2"
             android:text="Delete"
             android:onClick="ButtonDelete"
@@ -170,7 +170,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:orientation="horizontal">
 
         <Button
@@ -180,13 +180,13 @@
             android:text="0" android:onClick="ButtonZero" />
 
         <Button
-            style="@style/CalculatorButton"
+            style="@style/CalculatorButtonOperation"
             android:text="."
             android:id="@+id/button_dot"
             android:onClick="ButtonDot"/>
 
         <Button
-            style="@style/CalculatorButton"
+            style="@style/CalculatorButtonOperation"
             android:layout_weight="2"
             android:id="@+id/button_submit"
             android:onClick="ButtonSubmit"

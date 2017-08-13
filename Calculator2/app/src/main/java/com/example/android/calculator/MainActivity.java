@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyCharacterMap;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.BounceInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
         if (currentValue.equals("Infinity")) ScreenOfNumber.setText(numberAdd);
             //Set the text of the textview to the previous plus the number needed to be added using string addition
         else ScreenOfNumber.setText(currentValue + numberAdd);
+        //Sets it to tell the users that it is calculating
+        isCalculating();
     }
 
     //Method that will add the operations/and extras
@@ -67,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
                 else if (previousOperation.equals(")") || previousOperation.equals("--)"))
                     numberOfBrackets -= 1;
             }
+            //Will tell that the calculator is calculating
+            isCalculating();
             //If not it will not do anything.
         }
     }
@@ -79,12 +84,11 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                myButton.setBackgroundColor(Color.parseColor("#FFFFFF"));
                 myButton.setTextColor(Color.BLACK);
                 myButton.setBackgroundResource(R.drawable.outline_for_button);
             }
         }, 15);
-        myButton.setBackgroundColor(Color.parseColor("#ff4081"));
+        myButton.setBackgroundColor(Color.parseColor("#212121"));
         myButton.setTextColor(Color.WHITE);
     }
 
@@ -168,13 +172,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ButtonDivision(View v) {
-        addOperations("/");
+        addOperations("÷");
         final Button myButton = (Button) findViewById(R.id.button_division);
         ChangeButtonColour(myButton);
     }
 
     public void ButtonMultiply(View v) {
-        addOperations("*");
+        addOperations("X");
         final Button myButton = (Button) findViewById(R.id.button_multiply);
         ChangeButtonColour(myButton);
     }
@@ -189,16 +193,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Change all operation signs in the string to "*"
+    //Change all operation signs in the string to "X"
     //@param will be the string that needs to be changed
-    public String identifyAllOperations(String tempText, boolean closing) {
-        tempText = tempText.replace('+', '*');
-        tempText = tempText.replace('-', '*');
-        tempText = tempText.replace('/', '*');
-        tempText = tempText.replace('(', '*');
-        tempText = tempText.replace('^', '*');
-        tempText = tempText.replace('(', '*');
-        if (closing == true) tempText = tempText.replace(')', '*');
+    public String identifyAllOperations(String tempText, boolean closing, boolean negative) {
+        tempText = tempText.replace('+', 'X');
+        if (negative == true) tempText = tempText.replace('-', 'X');
+        tempText = tempText.replace('÷', 'X');
+        tempText = tempText.replace('(', 'X');
+        tempText = tempText.replace('^', 'X');
+        tempText = tempText.replace('(', 'X');
+        if (closing == true) tempText = tempText.replace(')', 'X');
         return tempText;
     }
 
@@ -227,26 +231,26 @@ public class MainActivity extends AppCompatActivity {
             //Figures out if there are any brackets behind it or other operation
             int numberEnds = findLastNumber.lastIndexOf('*');
             int lastClosing = findLastNumber.lastIndexOf('&');
-            int lastAnythingElse = identifyAllOperations(findLastNumber,false).lastIndexOf('*');
+            int lastAnythingElse = identifyAllOperations(findLastNumber, false, true).lastIndexOf('X');
             //Figure out where the other operation starts before the last digit entered
             //Makes sure that there are acutal numbers before changin gthe text to cut off at the last number
             //Will also ensure that any operation does not go before the last number
             if (numberEnds > 0 && lastClosing > numberEnds && lastAnythingElse <= numberEnds)
                 tempText = tempText.substring(0, numberEnds + 1);
             //Change the current text to identify all non-numbers
-            tempText = identifyAllOperations(tempText, true);
+            tempText = identifyAllOperations(tempText, true, true);
             //Get the position
-            int positionOfLast = tempText.lastIndexOf('*');
+            int positionOfLast = tempText.lastIndexOf('X');
             //Have a string that holds the length of the string
             int textString = ScreenOfNumber.getText().toString().length() - 1;
             //Gets a temporary text that will save the number
             //Makes sure that there are acutal numbers
-            if (numberEnds > 0 && lastClosing > numberEnds&& lastAnythingElse <= numberEnds)
+            if (numberEnds > 0 && lastClosing > numberEnds && lastAnythingElse <= numberEnds)
                 tempText = tempText.substring(positionOfLast + 1, numberEnds + 1);
             //Checks to se if the position of the last index for the '*' is and makes sure that the it isn't not in the front
             if ((positionOfLast != textString && positionOfLast > 0)) {
                 //Sees if the previous operation or button clicked was the negative/postive and sees if the number was previously negative or positive by looking at the sign
-                if ((previousOperation.equals("--") || previousOperation.equals("--)")) && ScreenOfNumber.getText().toString().substring(positionOfLast,positionOfLast+1).equals("-")) {
+                if ((previousOperation.equals("--") || previousOperation.equals("--)")) && ScreenOfNumber.getText().toString().substring(positionOfLast, positionOfLast + 1).equals("-")) {
                     //Sets the temporary string to the specific negative number
                     tempText = ScreenOfNumber.getText().toString().substring(positionOfLast, numberEnds + 1);
                     double valueOfNumber = Double.parseDouble(tempText);
@@ -420,6 +424,7 @@ public class MainActivity extends AppCompatActivity {
         ScreenOfNumber.setText("");
         numberOfBrackets = 0;
         previousOperation = "";
+        setTitle("Calculator");
     }
 
     public void ButtonDelete(View v) {
@@ -445,6 +450,8 @@ public class MainActivity extends AppCompatActivity {
                 //Only case where y appaears is if it it infinity.
                 //Sets the entire thing blank
                 ScreenOfNumber.setText("");
+                //change title to calculator once more
+                setTitle("Calculator");
                 //Make it so there is no positive or negative
                 previousOperation = "";
             } else {
@@ -453,10 +460,10 @@ public class MainActivity extends AppCompatActivity {
                 //Set text to the new updated String
                 ScreenOfNumber.setText(deletedOne);
                 //Making it easier to find the previous operation
-                String findLastOperation = identifyAllOperations(ScreenOfNumber.getText().toString(), true);
+                String findLastOperation = identifyAllOperations(ScreenOfNumber.getText().toString(), true, true);
 
                 //Save the last previous operation index into a string
-                int lastPosition = findLastOperation.lastIndexOf('*');
+                int lastPosition = findLastOperation.lastIndexOf('X');
                 //Sees if the position actually exists
                 if (lastPosition == -1) previousOperation = "";
                 else {
@@ -465,7 +472,7 @@ public class MainActivity extends AppCompatActivity {
                     findLastOperation = ScreenOfNumber.getText().toString().substring(lastPosition, lastPosition + 1);
                     //Check if it is a negative sign or minus
                     if (findLastOperation.equals(")")) {
-                        int OtherthanClosingBracket = identifyAllOperations(ScreenOfNumber.getText().toString(), false).lastIndexOf('*');
+                        int OtherthanClosingBracket = identifyAllOperations(ScreenOfNumber.getText().toString(), false, true).lastIndexOf('*');
                         if (OtherthanClosingBracket == -1) findLastOperation = "";
                         else {
                             previousOperation = "Contains')'";
@@ -536,7 +543,6 @@ public class MainActivity extends AppCompatActivity {
             /// The second arraylist confirms the specific one
             ArrayList<Integer> priorityOfOperations = new ArrayList<>();
             ArrayList<Integer> whichIsIt = new ArrayList<>();
-
             for (int i = 0; i < mathQuestion.length(); i++) {
                 //Now to check each indivudal character
                 if (mathQuestion.substring(i, i + 1).equals("+")) {
@@ -557,14 +563,14 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                     }
-                } else if (mathQuestion.substring(i, i + 1).equals("/")) {
+                } else if (mathQuestion.substring(i, i + 1).equals("÷")) {
                     //The priority will be above addition/subtraction but not above the other two
                     priorityOfOperations.add(2 + 10 * bracketsInside);
                     whichIsIt.add(0);
 
                     //increase the counter
                     numberOfOperations += 1;
-                } else if (mathQuestion.substring(i, i + 1).equals("*")) {
+                } else if (mathQuestion.substring(i, i + 1).equals("X")) {
                     //The priority will be above addition/subtraction but not above the other two
                     priorityOfOperations.add(2 + 10 * bracketsInside);
                     whichIsIt.add(1);
@@ -584,11 +590,12 @@ public class MainActivity extends AppCompatActivity {
                         //If the previous value was a number or closing bracket
                         if (last.equals(")") || isEqualNumbers(last)) {
                             //Add a multiplication sign and add it to the priority list
-                            mathQuestion = mathQuestion.substring(0, i) + "*" + mathQuestion.substring(i, mathQuestion.length());
+                            mathQuestion = mathQuestion.substring(0, i) + "X" + mathQuestion.substring(i, mathQuestion.length());
                             priorityOfOperations.add(2 + 10 * bracketsInside);
                             whichIsIt.add(1);
                             //increase the counter
                             numberOfOperations += 1;
+                            i += 1;
                         }
                     }                    //Not part of the priority but needs it's own unique number as it will be used soon
                     bracketsInside += 1;
@@ -599,13 +606,17 @@ public class MainActivity extends AppCompatActivity {
                         String last = mathQuestion.substring(i + 1, i + 2);
                         if ((last.equals("(") || isEqualNumbers(last))) {
                             //Add a multiplication sign and add it to the priority list
-                            mathQuestion = mathQuestion.substring(0, i + 1) + "*" + mathQuestion.substring(i + 1, mathQuestion.length());
+                            mathQuestion = mathQuestion.substring(0, i + 1) + "X" + mathQuestion.substring(i + 1, mathQuestion.length());
+
                         }
                     }
                 }
             }
+            //Remove the closing and opening brackets
+            mathQuestion = mathQuestion.replace("(", "");
+            mathQuestion = mathQuestion.replace(")", "");
             //Change all the operations to stars for ease since what the characters are do not have a point now
-            mathQuestion = identifyAllOperations(mathQuestion, true);
+            mathQuestion = identifyAllOperations(mathQuestion, false, false);
             //int that will track the index of findings
             int indexOfFindings = mathQuestion.indexOf('-');
             while (indexOfFindings >= 0) {
@@ -619,11 +630,11 @@ public class MainActivity extends AppCompatActivity {
                         //Also check if the location of the last operation is also the last character in the string
                         if (mathQuestion.length() == indexOfFindings + 1 && (previousCharacter.equals(")") || isEqualNumbers(previousCharacter))) {
                             //add it in the end
-                            mathQuestion = mathQuestion.substring(0, indexOfFindings) + "*";
+                            mathQuestion = mathQuestion.substring(0, indexOfFindings) + "X";
                             //Otherwise checks if the numbers/brackets is the previous character meaning
                             //If it is number/brackets then the '-' must be a minus sign and not a negative
                         } else if (previousCharacter.equals(")") || isEqualNumbers(previousCharacter)) {
-                            mathQuestion = mathQuestion.substring(0, indexOfFindings) + "*" + mathQuestion.substring(indexOfFindings + 1, mathQuestion.length());
+                            mathQuestion = mathQuestion.substring(0, indexOfFindings) + "X" + mathQuestion.substring(indexOfFindings + 1, mathQuestion.length());
                         } else {
                             //Adds the negative sign to the list
                             mathQuestion = mathQuestion.substring(0, indexOfFindings) + "&" + mathQuestion.substring(indexOfFindings + 1, mathQuestion.length());
@@ -635,242 +646,165 @@ public class MainActivity extends AppCompatActivity {
                 indexOfFindings = mathQuestion.indexOf('-');
             }
             mathQuestion = mathQuestion.replace('&', '-');
-            //If there is only one number
-            if (numberOfOperations == 1) {
-                //Since there is only one operation in the equation, the priority will automatically be given to the only operation
-                int biggest = priorityOfOperations.get(0);
-                //This will show which out of the options "+/-","*//", or just ^
-                int whichOperation = whichIsIt.get(0);
-                //Find the location of the specific operation
-                int pos = mathQuestion.indexOf("*");
-                //Using substrings find the doubles before and after it
-                double first = Double.parseDouble(mathQuestion.substring(0, pos));
-                double second = Double.parseDouble(mathQuestion.substring(pos + 1, mathQuestion.length()));
-                //Checks to see which operation it is
-                //The ones digit will correspond with the group/option it will have
-                if (biggest % 10 == 1) {
-                    //If the remainder is 1, it means the operation is either addition or subtraction
-                    // whichOperation is used to differentiate meaning 0 == additon and 1 == subtraction
-                    if (whichOperation == 0) {
-                        //Follow the operation and adds the two doubles
-                        first = first + second;
-                        //CAST the double to see if it's the same after truncation
-                        int checker = (int) first;
-                        if (checker == first) {
-                            //If it is equal then it will just post the integer value of it
-                            ScreenOfNumber.setText(Integer.toString(checker));
-                        } //Otherwise show the double as it will have decimals
-                        else ScreenOfNumber.setText(Double.toString(first));
-                    } else {
-                        //The other option frmo this group is minus
-                        //The two numbers are subtracted and saved to a double
-                        first = first - second;
-                        //CAST the double to see if it's the same after truncation
-                        int checker = (int) first;
-                        //Checks to see if the numbers are equal after the truncation
-                        if (checker == first) {
-                            //Changes the textView to the integer value
-                            ScreenOfNumber.setText(Integer.toString(checker));
-                        }//Otherwise show the double version
-                        else ScreenOfNumber.setText(Double.toString(first));
+            //Create doubles to hold the first and s econd number that will be used
+            double second = 0;
+            double first = 0;
+            //Will continuously run until the number of remaining operations is 0
+            while (numberOfOperations > 0) {
+                //Integer that will hold the priority value, the current position of the index and an integer thta will help differentiate the operations
+                int biggest = 0;
+                int currentPos = 0;
+                int whichOperation = 0;
+                //Finding the biggest out of the number of operations
+                for (int j = 0; j < numberOfOperations; j++) {
+                    //Will continue to cycle and check for the highest priority
+                    if (biggest < priorityOfOperations.get(j)) {
+                        //Once found it will assign the current biggest to the bigger value, new position and which operation
+                        biggest = priorityOfOperations.get(j);
+                        currentPos = j;
+                        whichOperation = whichIsIt.get(j);
                     }
-                    //Checks to see if the ones digit matches the other group "*"/"/" which would be equal to 2
-                } else if (biggest % 10 == 2) {
-                    //Checks which out of the 2 options it will be
-                    if (whichOperation == 0) {
-                        //If it is 0 then the two numbers will be divided
-                        first = first / second;
-                        //CAST and check to see if the casted value is the same as the doulbe
-                        int checker = (int) first;
-                        if (checker == first) {
-                            //If so then set the answer as the textView text
-                            ScreenOfNumber.setText(Integer.toString(checker));
-                        }//Otherwise set the textView to the double
-                        else ScreenOfNumber.setText(Double.toString(first));
-                    }
-                    // The other option in this group is multiplication
-                    else {
-                        //Set the first variable equal to the two multiplied
-                        first = first * second;
-                        //cast it to see if the integer value is the same as the double
-                        int checker = (int) first;
-                        if (checker == first) {
-                            //Sets the text on the textView to the integer
-                            ScreenOfNumber.setText(Integer.toString(checker));
-                        }//Sets the text on the textView to the double value
-                        else ScreenOfNumber.setText(Double.toString(first));
-                    }
-                }//Otherwise then it must be exponent
+                }
+                //Integers that will hold the position of the operation before and after the current operatoion
+                int firstPosition = 0, secondPosition = mathQuestion.length();
+                //Checks to see if there is only one last operation
+                if (currentPos == 0 && numberOfOperations == 1) {
+                    //If this is the only operation then find the exact location and praseDouble the numebers before and after it
+                    secondPosition = mathQuestion.indexOf("X");
+                    //From the first number ot the number just before X, the string will be converted into a double
+                    first = Double.parseDouble(mathQuestion.substring(0, secondPosition));
+                    //Likewise the string from the number after the sign to the last character will be converted into a oduble
+                    second = Double.parseDouble(mathQuestion.substring(secondPosition + 1, mathQuestion.length()));
+                } else if (currentPos == 0) {
+                    //If it's the first operation to appear but there are multiple, find the next operation sign and make the double the string after the first operation and before the second
+                    firstPosition = mathQuestion.indexOf("X");
+                    //Finds the positions of where each numbers start and end then convert the string to doubles
+                    first = Double.parseDouble(mathQuestion.substring(0, firstPosition));
+                    String temp = mathQuestion.substring(firstPosition + 1, mathQuestion.length());
+                    //Note that a temp string is used to help find the next 'X' using the index of function.
+                    //Helps in finding the position of the last character for the second number
+                    secondPosition = temp.indexOf("X") + firstPosition + 1;
+                    second = Double.parseDouble(mathQuestion.substring(firstPosition + 1, secondPosition));
+                    //Checks to see if the operation is the last one in the list
+                } else if (currentPos + 1 == numberOfOperations) {
+                    //Finds the location by locating the last occurance of the operations
+                    secondPosition = mathQuestion.lastIndexOf('X');
+                    //Find the first and last character for each number and convert them to doubles
+                    second = Double.parseDouble(mathQuestion.substring(secondPosition + 1, mathQuestion.length()));
+                    firstPosition = mathQuestion.substring(0, secondPosition - 1).lastIndexOf('X');
+                    first = Double.parseDouble(mathQuestion.substring(firstPosition + 1, secondPosition));
+                }//Otherwise it is in a random position
                 else {
-                    //Use a function from math to do expoenents
-                    second = Math.pow(first, second);
-                    //Because 3^3 is the only case foudn that does not work correctly
-                    if (first == 3 && second == 26.99999999999999) second = 27;
-                    //Cast - checks if the value should be set as an integer or double
-                    int checker = (int) second;
-                    if (second == checker) {
-                        ScreenOfNumber.setText(Integer.toString(checker));
-                    } else ScreenOfNumber.setText(Double.toString(second));
-                }
-            }
-            //If there is more than one operation
-            else {
-                //Create doubles to hold the first and s econd number that will be used
-                double second = 0;
-                double first = 0;
-                //Will continuously run until the number of remaining operations is 0
-                while (numberOfOperations > 0) {
-                    //Integer that will hold the priority value, the current position of the index and an integer thta will help differentiate the operations
-                    int biggest = 0;
-                    int currentPos = 0;
-                    int whichOperation = 0;
-                    //Finding the biggest out of the number of operations
-                    for (int j = 0; j < numberOfOperations; j++) {
-                        //Will continue to cycle and check for the highest priority
-                        if (biggest < priorityOfOperations.get(j)) {
-                            //Once found it will assign the current biggest to the bigger value, new position and which operation
-                            biggest = priorityOfOperations.get(j);
-                            currentPos = j;
-                            whichOperation = whichIsIt.get(j);
+                    //have a string (same as the textView text) that can manipulated and changed without affecting the rest
+                    String findingPosition = mathQuestion;
+                    //the position of the operation that is done
+                    int currentPosition = 0;
+                    //Counts the number of characters the .indexOf counts each time and accumulates the total
+                    int cont = 0;
+                    //loops enough times to cover all the operations
+                    for (int k = 0; k < numberOfOperations; k++) {
+                        //Finds the 'X' and checks if it is in the current position that is wanted
+                        int index = findingPosition.indexOf('X');
+                        //totals up the value
+                        cont += index;
+                        //Checks one less the current position is the operation before the one focused on
+                        if (k == currentPos - 1) {
+                            //Save the location of the position of when the first number starts
+                            firstPosition = cont + k;
+                            //Checks the current position is the desirabled one
+                        } else if (k == currentPos) {
+                            //Save the location of the middle/current operation
+                            currentPosition = cont + k;
+                            //Sees if the current position is one more than the operation focused
+                        } else if (k == currentPos + 1) {
+                            //Saves the last position of the number
+                            secondPosition = cont + k;
+                            //breaks
+                            k = numberOfOperations;
                         }
-                    }
-                    //Integers that will hold the position of the operation before and after the current operatoion
-                    int firstPosition = 0, secondPosition = mathQuestion.length();
-                    //Checks to see if there is only one last operation
-                    if (currentPos == 0 && numberOfOperations == 1) {
-                        //If this is the only operation then find the exact location and praseDouble the numebers before and after it
-                        secondPosition = mathQuestion.indexOf("*");
-                        //From the first number ot the number just before *, the string will be converted into a double
-                        first = Double.parseDouble(mathQuestion.substring(0, secondPosition));
-                        //Likewise the string from the number after the sign to the last character will be converted into a oduble
-                        second = Double.parseDouble(mathQuestion.substring(secondPosition + 1, mathQuestion.length()));
-                    } else if (currentPos == 0) {
-                        //If it's the first operation to appear but there are multiple, find the next operation sign and make the double the string after the first operation and before the second
-                        firstPosition = mathQuestion.indexOf("*");
-                        //Finds the positions of where each numbers start and end then convert the string to doubles
-                        first = Double.parseDouble(mathQuestion.substring(0, firstPosition));
-                        String temp = mathQuestion.substring(firstPosition + 1, mathQuestion.length());
-                        //Note that a temp string is used to help find the next '*' using the index of function.
-                        //Helps in finding the position of the last character for the second number
-                        secondPosition = temp.indexOf("*") + firstPosition + 1;
-                        second = Double.parseDouble(mathQuestion.substring(firstPosition + 1, secondPosition));
-                        //Checks to see if the operation is the last one in the list
-                    } else if (currentPos + 1 == numberOfOperations) {
-                        //Finds the location by locating the last occurance of the operations
-                        secondPosition = mathQuestion.lastIndexOf('*');
-                        //Find the first and last character for each number and convert them to doubles
-                        second = Double.parseDouble(mathQuestion.substring(secondPosition + 1, mathQuestion.length()));
-                        firstPosition = mathQuestion.substring(0, secondPosition - 1).lastIndexOf('*');
-                        first = Double.parseDouble(mathQuestion.substring(firstPosition + 1, secondPosition));
-                    }//Otherwise it is in a random position
-                    else {
-                        //have a string (same as the textView text) that can manipulated and changed without affecting the rest
-                        String findingPosition = mathQuestion;
-                        //the position of the operation that is done
-                        int currentPosition = 0;
-                        //Counts the number of characters the .indexOf counts each time and accumulates the total
-                        int cont = 0;
-                        //loops enough times to cover all the operations
-                        for (int k = 0; k < numberOfOperations; k++) {
-                            //Finds the '*' and checks if it is in the current position that is wanted
-                            int index = findingPosition.indexOf('*');
-                            //totals up the value
-                            cont += index;
-                            //Checks one less the current position is the operation before the one focused on
-                            if (k == currentPos - 1) {
-                                //Save the location of the position of when the first number starts
-                                firstPosition = cont + k;
-                                //Checks the current position is the desirabled one
-                            } else if (k == currentPos) {
-                                //Save the location of the middle/current operation
-                                currentPosition = cont + k;
-                                //Sees if the current position is one more than the operation focused
-                            } else if (k == currentPos + 1) {
-                                //Saves the last position of the number
-                                secondPosition = cont + k;
-                                //breaks
-                                k = numberOfOperations;
-                            }
-                            //Will continue to manipulate the string to find the next value
-                            findingPosition = findingPosition.substring(index + 1, findingPosition.length());
+                        //Will continue to manipulate the string to find the next value
+                        findingPosition = findingPosition.substring(index + 1, findingPosition.length());
 
-                        }
-                        //Save the first and second number after finding out their locations and converting them
-                        first = Double.parseDouble(mathQuestion.substring(firstPosition + 1, currentPosition));
-                        second = Double.parseDouble(mathQuestion.substring(currentPosition + 1, secondPosition));
                     }
-                    //Remove the current position's priority as it will be done and used
-                    priorityOfOperations.remove(currentPos);
-                    whichIsIt.remove(currentPos);
-                    //Biggest which is the priority will have a specific ones digit that is affiliated with a group of operation
-                    //1 being "+" or "-" , 2 being "*" or "/", and 3 being only "^"
-                    //Checks to see if it is subtraction/addition
-                    if (biggest % 10 == 1) {
-                        //Which operation stores the proper type ( 0 equal addition and 1 equals subtraction)
-                        if (whichOperation == 0) {
-                            //Will update the first
-                            first = first + second;
-                            //Function that will automatically fix the string and return back the new string
-                            mathQuestion = fixedEquation(first, numberOfOperations, mathQuestion, currentPos, secondPosition, firstPosition);
-                        } else {
-                            //Otherwise it will subtract the two numbers and update first
-                            first = first - second;
-                            //Uses the function to edit the current string to the new updated version with first and second subtracted
-                            mathQuestion = fixedEquation(first, numberOfOperations, mathQuestion, currentPos, secondPosition, firstPosition);
-                        }
-                        //Check if infinity is already part of the answer
-                        if (mathQuestion.contains("Infinity")) {
-                            //Set the entire thing to infinity
-                            mathQuestion = "Infinity";
-                            //stop code from working before it crashes
-                            break;
-                        }
-                        //Check to see if the operation should match multiplication and division
-                    } else if (biggest % 10 == 2) {
-                        //0 equals division and 1 equals multiplication
-                        //Each value will help differentiate
-                        if (whichOperation == 0) {
-                            //Saves the division of the two numbers to a double
-                            first = first / second;
-                            //Use the function to add the new number to the string
-                            mathQuestion = fixedEquation(first, numberOfOperations, mathQuestion, currentPos, secondPosition, firstPosition);
-                        } else {
-                            //Save the multiplication to a double
-                            first = first * second;
-                            //Will use a function that will update the String to include the math done
-                            mathQuestion = fixedEquation(first, numberOfOperations, mathQuestion, currentPos, secondPosition, firstPosition);
-                        }
-                        //Checks to see if infinity happened
-                        if (mathQuestion.contains("Infinity")) {
-                            //Will not function if infinity is found
-                            mathQuestion = "Infinity";
-                            break;
-                        }
-                    } else {
-                        //Last option is exponents
-                        //Will use the math.pow function to automatically get the exponent of second to the base of first
-                        first = Math.pow(first, second);
-                        //Because 3^3 is the only case foudn that does not work correctly
-                        if (second == 3 && first == 26.99999999999999) first = 27;
-                        //Updates the string value
+                    //Save the first and second number after finding out their locations and converting them
+                    first = Double.parseDouble(mathQuestion.substring(firstPosition + 1, currentPosition));
+                    second = Double.parseDouble(mathQuestion.substring(currentPosition + 1, secondPosition));
+                }
+                //Remove the current position's priority as it will be done and used
+                priorityOfOperations.remove(currentPos);
+                whichIsIt.remove(currentPos);
+                //Biggest which is the priority will have a specific ones digit that is affiliated with a group of operation
+                //1 being "+" or "-" , 2 being "x" or "/", and 3 being only "^"
+                //Checks to see if it is subtraction/addition
+                if (biggest % 10 == 1) {
+                    //Which operation stores the proper type ( 0 equal addition and 1 equals subtraction)
+                    if (whichOperation == 0) {
+                        //Will update the first
+                        first = first + second;
+                        //Function that will automatically fix the string and return back the new string
                         mathQuestion = fixedEquation(first, numberOfOperations, mathQuestion, currentPos, secondPosition, firstPosition);
-                        //checks for infinity to ensure code does not fail
-                        if (mathQuestion.contains("Infinity")) {
-                            mathQuestion = "Infinity";
-                            //Once infinity is found break out of the code
-                            break;
-                        }
+                    } else {
+                        //Otherwise it will subtract the two numbers and update first
+                        first = first - second;
+                        //Uses the function to edit the current string to the new updated version with first and second subtracted
+                        mathQuestion = fixedEquation(first, numberOfOperations, mathQuestion, currentPos, secondPosition, firstPosition);
                     }
-                    //Decrease the number of operations as each time the code completes one it is no longer important
-                    numberOfOperations -= 1;
+                    //Check if infinity is already part of the answer
+                    if (mathQuestion.contains("Infinity")) {
+                        //Set the entire thing to infinity
+                        mathQuestion = "Infinity";
+                        //stop code from working before it crashes
+                        break;
+                    }
+                    //Check to see if the operation should match multiplication and division
+                } else if (biggest % 10 == 2) {
+                    //0 equals division and 1 equals multiplication
+                    //Each value will help differentiate
+                    if (whichOperation == 0) {
+                        //Saves the division of the two numbers to a double
+                        first = first / second;
+                        //Use the function to add the new number to the string
+                        mathQuestion = fixedEquation(first, numberOfOperations, mathQuestion, currentPos, secondPosition, firstPosition);
+                    } else {
+                        //Save the multiplication to a double
+                        first = first * second;
+                        //Will use a function that will update the String to include the math done
+                        mathQuestion = fixedEquation(first, numberOfOperations, mathQuestion, currentPos, secondPosition, firstPosition);
+                    }
+                    //Checks to see if infinity happened
+                    if (mathQuestion.contains("Infinity")) {
+                        //Will not function if infinity is found
+                        mathQuestion = "Infinity";
+                        break;
+                    }
+                } else {
+                    //Last option is exponents
+                    //Will use the math.pow function to automatically get the exponent of second to the base of first
+                    first = Math.pow(first, second);
+                    //Because 3^3 is the only case foudn that does not work correctly
+                    if (second == 3 && first == 26.99999999999999) first = 27;
+                    //Updates the string value
+                    mathQuestion = fixedEquation(first, numberOfOperations, mathQuestion, currentPos, secondPosition, firstPosition);
+                    //checks for infinity to ensure code does not fail
+                    if (mathQuestion.contains("Infinity")) {
+                        mathQuestion = "Infinity";
+                        //Once infinity is found break out of the code
+                        break;
+                    }
                 }
-                //After all the math, update the textView to the final answer
-                ScreenOfNumber.setText(mathQuestion);
-
+                //Decrease the number of operations as each time the code completes one it is no longer important
+                numberOfOperations -= 1;
             }
-        }
 
+            //Set title to the question
+            setTitle(ScreenOfNumber.getText().toString() + " = " + mathQuestion);
+            //After all the math, update the textView to the final answer
+            ScreenOfNumber.setText(mathQuestion);
+
+
+        }
     }
+
 
     //Function that will return a string that is the edited version that includes the math done
     //@para first is to save the number that was the result of the operations
@@ -949,10 +883,16 @@ public class MainActivity extends AppCompatActivity {
     //@para lastOne is the last character of a string that needs to be checked
     public boolean isEqualOperation(String lastOne) {
         //Checks if the last character is an operation sign
-        if (lastOne.equals("*") || lastOne.equals("/") || lastOne.equals("-") || lastOne.equals("+") || lastOne.equals("^") || lastOne.equals("("))
+        if (lastOne.equals("X") || lastOne.equals("÷") || lastOne.equals("-") || lastOne.equals("+") || lastOne.equals("^") || lastOne.equals("("))
             return true;
-        //otherwise return a false as it is not
+            //otherwise return a false as it is not
         else return false;
+    }
+
+    //Will set the title to calculating... if a number or operation is pressed if not already calculating
+    public void isCalculating(){
+        if(!getTitle().equals("Calculating....")) setTitle("Calculating....");
+
     }
 }
 
