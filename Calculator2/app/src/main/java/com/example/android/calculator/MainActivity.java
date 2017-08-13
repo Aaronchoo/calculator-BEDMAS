@@ -520,16 +520,13 @@ public class MainActivity extends AppCompatActivity {
         } else if (isEqualOperation(lastOne)) {
             Toast.makeText(this, "Cannot end math question with that!", Toast.LENGTH_SHORT).show();
         }//Must check if there are equal amoutn of brackets as user may mess up and forget a few
-        else if (numberOfBrackets != 0) {
-            //If it's positive it means they have too many open brackets
+        else {
             if (numberOfBrackets > 0) {
-                //Tells them to add more close brackets
-                Toast.makeText(this, "You have one too many open brackets! Is this a mistake?", Toast.LENGTH_SHORT).show();
-            } else {
-                //If there are too many closed brackets then it will inform the user there are too many closed brackets
-                Toast.makeText(this, "You have one too many closing brackets! Is this a mistake?", Toast.LENGTH_SHORT).show();
+                //If there are to many open brackets then automatically add enough closing brackets
+                for (int i = 0; i < numberOfBrackets; i++) {
+                    mathQuestion = mathQuestion + ")";
+                }
             }
-        } else {
             //Start the alg to solve it
             //Have the number of operations for the question/eq'n
             int numberOfOperations = 0;
@@ -890,8 +887,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Will set the title to calculating... if a number or operation is pressed if not already calculating
-    public void isCalculating(){
-        if(!getTitle().equals("Calculating....")) setTitle("Calculating....");
+    public void isCalculating() {
+        if (!getTitle().equals("Calculating....")) setTitle("Calculating....");
 
     }
 }
